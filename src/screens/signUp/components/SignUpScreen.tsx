@@ -1,14 +1,197 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+ 
+
+
+import { Keyboard, StyleSheet, Text, View } from 'react-native'
+import React, { useState } from 'react'
+import { Components } from '../../../components'
+import styles from '../../login/components/LoginScreen.styles'
+import { responsiveWidth } from 'react-native-responsive-dimensions'
+import { useFocusEffect } from '@react-navigation/native'
+import I18n from '../../../i18n'
+import { useEncrypt } from '../../../hooks/useEncrypt'
+import { Helper } from '../../../helpers/helper/Helper'
+import { navigate } from '../../../utils/NavigationUtils'
 
 const SignUpScreen = () => {
+const [isLoading, setIsLoading] = useState(false)
+  const [inputs, setInputs] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [errors, setErrors] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+ 
+
+  const handleOnchange = (text: string, input: string) => {
+    setInputs((prevState) => ({ ...prevState, [input]: text }));
+  };
+
+  const handleError = (error: string | null, input: string) => {
+    setErrors((prevState) => ({ ...prevState, [input]: error }));
+  };
+
+  const validation = () => {
+    Keyboard.dismiss();
+    let isValidName = 0;
+    let isValidEmail = 0;
+    let isValidPassword = 0;
+    let isValidConfirmPassword = 0;
+
+    if (Helper.isEmpty(inputs?.name)) {
+      handleError(I18n.t("Name_Required"), "name");
+      isValidName = 0;
+    } else {
+      handleError("", "name");
+      isValidName = 1;
+    }
+
+    if (Helper.isEmpty(inputs?.email)) {
+      handleError(I18n.t("Email_Cant_Empty"), "email");
+      isValidEmail = 0;
+    } else if (!Helper.isValidEmail(inputs?.email)) {
+      handleError(I18n.t("Enter_Valid_Mail"), "email");
+      isValidEmail = 0;
+    } else {
+      handleError("", "email");
+      isValidEmail = 1;
+    }
+
+    if (Helper.isEmpty(inputs?.password)) {
+      handleError(I18n.t("Password_Cant_Empty"), "password");
+      isValidPassword = 0;
+    } else if (inputs?.password?.trim().length < 6) {
+      handleError(I18n.t("Password_length_validation"), "password");
+      isValidPassword = 0;
+    } else {
+      handleError("", "password");
+      isValidPassword = 1;
+    }
+    if (Helper.isEmpty(inputs?.confirmPassword)) {
+      handleError(I18n.t("Enter_Password_again"), "confirmPassword");
+      isValidConfirmPassword = 0;
+    } else if (inputs?.password !== inputs?.confirmPassword) {
+      handleError(I18n.t("Password_Should_Be_Same"), "confirmPassword");
+      isValidConfirmPassword = 0;
+    } else {
+      handleError("", "confirmPassword");
+      isValidConfirmPassword = 1;
+    }
+
+    if (
+      isValidName === 1 &&
+      isValidEmail === 1 &&
+      isValidPassword === 1 &&
+      isValidConfirmPassword === 1
+    ) {
+      let _data = {
+        ...inputs,
+        fbgoogle: 0,
+        encryptedEmail: useEncrypt(inputs.email),
+        encryptedPassword: useEncrypt(inputs.password),
+      };
+      handleSignUp?.(_data);
+    }
+  };
+
+  const handleSignUp = (data: any) => {
+    console.log(data);
+  };
+
+  const signUpAction = () => {
+    navigate("SignUp")
+  };
+
   return (
-    <View>
-      <Text>SignUpScreen</Text>
-    </View>
+    <Components.Background>
+      <Components.SizedBox verticalSpace={10} />
+      <Components.Logo
+        animationStyle={{
+          width: responsiveWidth(50),
+          height: responsiveWidth(50)
+        }} />
+      <View style={styles.formContainer} >
+        <Components.SizedBox verticalSpace={1} />
+       <Components.InputField
+        label={I18n.t("Name")}
+        placeholder={I18n.t("Name")}
+        onChangeText={(text) => handleOnchange(text, "name")}
+        error={errors.name}
+        onFocus={() => handleError(null, "name")}
+        keyboardType="email-address"
+        autoCapitalize="none"
+        value={inputs.name}
+        isPassword={false}
+      />
+      {/* Email */}
+      <Components.InputField
+        label={I18n.t("Email")}
+        placeholder={I18n.t("Enter_Your_Email")}
+        onChangeText={(text) => handleOnchange(text, "email")}
+        error={errors.email}
+        onFocus={() => handleError(null, "email")}
+        keyboardType="email-address"
+        autoCapitalize="none"
+        value={inputs.email}
+        isPassword={false}
+      />
+      {/* Password */}
+      <Components.InputField
+        label={I18n.t("Password")}
+        placeholder={". . . . . . . ."}
+        isPassword={true}
+        onChangeText={(text) => handleOnchange(text, "password")}
+        error={errors?.password}
+        onFocus={() => handleError(null, "password")}
+        keyboardType="default"
+        value={inputs.password}
+      />
+
+      {/* Confirm Password */}
+      <Components.InputField
+        label={I18n.t("Confirm_Password")}
+        placeholder={". . . . . . . ."}
+        isPassword={true}
+        onChangeText={(text) => handleOnchange(text, "confirmPassword")}
+        error={errors.confirmPassword}
+        onFocus={() => handleError(null, "confirmPassword")}
+        keyboardType="default"
+        value={inputs.confirmPassword}
+      />
+      <Components.SizedBox verticalSpace={3} />
+      {/* Custom Button Component */}
+      <Components.Button
+        buttonLabel={I18n.t("Signup_here")}
+        onPress={validation}
+        style={styles.button}
+        isLoading={isLoading}
+      />
+        <Components.SizedBox verticalSpace={6} />
+
+        <Components.Button buttonLabel="Login" onPress={validation} />
+        <Components.SizedBox verticalSpace={4} />
+        <Components.RtlContainer style={styles.signUpContainer}>
+        <Components.Label label={I18n.t("Dont_have_an_account")} />
+
+          <Components.SizedBox horizontalSpace={2} />
+          <Components.Label
+            label={I18n.t("Signup_here")}
+            style={styles.signUpText}
+            onPress={signUpAction}
+          />
+        </Components.RtlContainer>
+
+
+
+      </View>
+    </Components.Background>
   )
 }
 
 export default SignUpScreen
 
-const styles = StyleSheet.create({})

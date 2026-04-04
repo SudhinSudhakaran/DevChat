@@ -1,0 +1,22 @@
+diff --git a/node_modules/react-native-copilot/dist/index.js b/node_modules/react-native-copilot/dist/index.js
+index 3aff2e2..cf133a5 100644
+--- a/node_modules/react-native-copilot/dist/index.js
++++ b/node_modules/react-native-copilot/dist/index.js
+@@ -131,7 +131,7 @@ var init_style = __esm({
+         borderWidth: 2,
+         borderRadius: STEP_NUMBER_RADIUS,
+         borderColor: "#FFFFFF",
+-        backgroundColor: "#27ae60"
++        backgroundColor: '#C53939'
+       },
+       stepNumberText: {
+         fontSize: 10,
+@@ -142,7 +142,7 @@ var init_style = __esm({
+         padding: 10
+       },
+       buttonText: {
+-        color: "#27ae60"
++        color: '#C53939'
+       },
+       bottomBar: {
+         marginTop: 10,

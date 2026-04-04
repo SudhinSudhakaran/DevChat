@@ -3,10 +3,7 @@ import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 // === Screens ===
 import RouterTab from './RouterTab';
- 
-import Login from '../screens/login';
- 
-import SignUp from '../screens/signUp';
+import { Screens } from '../screens';
   
  
 const Stack = createNativeStackNavigator();
@@ -20,11 +17,9 @@ const HomeStack = () => {
       initialRouteName="Tabs">
       <Stack.Screen name="Tabs" component={RouterTab} />
       
-      <Stack.Screen name="Login" component={Login} />
- 
-      <Stack.Screen name="SignUp" component={SignUp} />
+      
    
-      <Stack.Screen name="Profile" component={Profile} />
+  
       
     </Stack.Navigator>
   );

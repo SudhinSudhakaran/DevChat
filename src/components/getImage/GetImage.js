@@ -3,7 +3,8 @@ import {Image, View} from 'react-native';
 import FastImage from 'react-native-fast-image';
 import PropTypes from 'prop-types';
 import ContentLoader, {Facebook, Rect} from 'react-content-loader/native';
-import Images from '../assets/images';
+import { Images } from '../../constants';
+ 
 
 const GetImage = ({source, isLocal, style, resizeMode, ...props}) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -66,7 +67,7 @@ const GetImage = ({source, isLocal, style, resizeMode, ...props}) => {
         resizeMode={getResizeMode(resizeMode)}
       />
       {isLoading && <Loader style={style} />}
-      {error && <Image source={Images.default} style={style} />}
+      {error && <Image source={Images.DEFAULT_IMAGE} style={style} />}
     </View>
   );
 };

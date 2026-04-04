@@ -1,3 +1,4 @@
 export const Animations = {
-     LOADER: require("../../assets/animations/loaderAnimation.json"),
+    LOGO_ANIMATION: require("../../assets/animations/Chat.json"),
+    LOADER: require("../../assets/animations/loaderAnimation.json"),
 }

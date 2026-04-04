@@ -3,34 +3,35 @@ import {View} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 
 // Colors
-import {PRIMARY_COLOR, SECONDARY_COLOR} from '../assets/color';
+ 
 
 // Custom TabBar component (optional)
  
-import MyTabBar from '../components/BottomTab';
-import Home from '../screens/home';
-import Festivals from '../screens/festivals';
-import Profile from '../screens/profile';
+ 
+import { Screens } from '../screens';
+import { Colors } from '../constants';
+ 
+ 
  
 const Tab = createBottomTabNavigator();
 
 const RouterTab = () => {
   return (
     <Tab.Navigator
-      tabBar={(props) => <MyTabBar {...props} />}
+      // tabBar={(props) => <MyTabBar {...props} />}
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: PRIMARY_COLOR,
-        tabBarInactiveTintColor: SECONDARY_COLOR,
+        tabBarActiveTintColor: Colors.PRIMARY_COLOR,
+        tabBarInactiveTintColor: Colors.SECONDARY_COLOR,
         tabBarStyle: { height: 70 },
         tabBarShowLabel: true,
         tabBarHideOnKeyboard: true,
       }}
-      initialRouteName="Home"
+      initialRouteName="Chat"
     >
-      <Tab.Screen name="Home" component={Home} />
-      <Tab.Screen name="Festivals" component={Festivals} />
-      <Tab.Screen name="Profile" component={Profile} />
+      <Tab.Screen name="Chat" component={Screens.ChatScreen} />
+ 
+      <Tab.Screen name="Profile" component={Screens.Profile} />
  
             
     </Tab.Navigator>

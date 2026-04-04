@@ -10,6 +10,7 @@ import {navigationRef} from '../utils/NavigationUtils';
  
 import { Screens } from '../screens';
 import HomeStack from './HomeStack';
+import AuthStack from './AuthStack';
 
 const Stack = createNativeStackNavigator();
 const RootStack = () => {
@@ -23,10 +24,11 @@ const RootStack = () => {
         initialRouteName="SplashScreen">
        
  <Stack.Screen name="SplashScreen" component={Screens.SplashScreen} />
-     
+     <Stack.Screen name="AuthStack" component={AuthStack} />
         <Stack.Screen name="HomeStack" component={HomeStack} />
       </Stack.Navigator>
     </NavigationContainer>
   );
 };
 export default RootStack;
+

@@ -1,22 +1,14 @@
 type Translation = {
-  Yes: string;
-  Copy: string;
+
   Name: string;
-  Home: string;
-  Send: string;
-  Share: string;
-  About: string;
-  Reset: string;
+
   Login: string;
   Email: string;
   Phone: string;
-  Books: string;
-  Search: string;
+
   Delete: string;
   Cancel: string;
-  Submit: string;
-  Preset: string;
-  Redeem: string;
+
   Sign_Up: string;
   Explore: string;
   SignOut: string;
@@ -24,112 +16,66 @@ type Translation = {
   Message: string;
   Profile: string;
   Password: string;
-  Remember: string;
+
   Register: string;
-  Subjects: string;
-  About_Us: string;
-  Archives: string;
-  Articles: string;
-  ContactUs: string;
-  OTP_Title: string;
-  Enter_OTP: string;
-  Subscribe: string;
-  Share_Now: string;
-  Why_Login: string;
+
   Take_Photo: string;
-  Refer_Earn: string;
-  Powered_by: string;
+
   Signup_here: string;
-  The_Founder: string;
+
   Change_Name: string;
-  Okay_Got_it: string;
-  Dreams_List: string;
-  Dream_Empty: string;
-  logoutAlert: string;
-  Get_started: string;
-  Notification: string;
+
   Please_Login: string;
-  Change_Email: string;
+
   Edit_Picture: string;
-  Subscription: string;
-  More_Details: string;
+
   Old_Password: string;
   New_Password: string;
-  Help_Support: string;
-  OTP_SubTitle: string;
-  Wallet_Money: string;
+
   Name_Required: string;
-  Cookie_Policy: string;
-  Other_Ev_Apps: string;
-  DreamsCharList: string;
+
   Reset_Password: string;
   Privacy_Policy: string;
   Delete_Account: string;
-  Ev_app_account: string;
+
   Change_Language: string;
-  Restore_Account: string;
+
   Forgot_Password: string;
   Change_Password: string;
   Retype_Password: string;
   Enter_Your_Email: string;
   Confirm_Password: string;
-  Analyse_My_Dream: string;
-  Profile_Settings: string;
+
   Enter_Valid_Mail: string;
   Email_Cant_Empty: string;
   AnalysDreamTitle: string;
   Phone_Cant_Empty: string;
-  Enable_Biometric: string;
-  Name_cannot_empty: string;
-  ElectronicVillage: string;
-  Biometric_Sign_In: string;
-  Search_Dictionary: string;
+
   Create_an_account: string;
-  Signup_with_Google: string;
-  Message_Cant_Empty: string;
-  Add_Invitation_Key: string;
-  No_questions_found: string;
+
   Sign_in_with_Apple: string;
   Sign_in_with_Google: string;
   Choose_Form_Gallery: string;
   Password_Cant_Empty: string;
-  AnalysDreamSubTitle: string;
-  chatGpt_placeHolder: string;
-  Logged_In_Users_Can: string;
-  Terms_and_Conditions: string;
+
   Signup_with_Facebook: string;
   Dont_have_an_account: string;
   Enter_Password_again: string;
-  Enter_Invitation_Key: string;
+
   Sign_in_with_Facebook: string;
-  Enter_your_dream_here: string;
+
   Already_have_an_account: string;
   Password_Should_Be_Same: string;
   Forgot_Password_subTitle: string;
-  Founded_by_His_Excellency: string;
+
   Password_length_validation: string;
-  Frequently_Asked_Questions: string;
+
   Password_Changed_Successfully: string;
   Confirm_password_cant_be_empty: string;
-  Your_feedback_sent_successfully: string;
-  Categories: string;
-  Places: string;
-  Years: string;
-  See_All: string;
-  Archives_List: string;
-  Archives_Mapped: string;
-  Archives_Year: string;
-  Archives_Places: string;
-  Archives_Category: string;
-  Favourites: string;
-  News_Paper: string;
-  Account_Settings: string;
-  Powered_By: string;
-  Electronic_Village: string;
+
+
   login_message: string;
-  Any: string;
-  Exact_Phrase: string;
-  All: string;
+
 };
 
 const translations: Translation = {
