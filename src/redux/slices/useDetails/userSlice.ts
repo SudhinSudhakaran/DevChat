@@ -52,6 +52,9 @@ const userSlice = createSlice({
  
  
     setIsUserIsLoggedIn: (state, action: PayloadAction<boolean>) => {
+      console.log("Setting isUserLoggedIn to:", action.payload);
+      
+      
       state.isUserLoggedIn = action.payload;
     },
     

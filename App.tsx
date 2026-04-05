@@ -3,7 +3,7 @@ import {Provider} from 'react-redux';
  
 
 import {PersistGate} from 'redux-persist/integration/react';
-
+import { KeyboardProvider } from "react-native-keyboard-controller";
 import ErrorBoundary from 'react-native-error-boundary';
 import {
   Text,
@@ -46,17 +46,17 @@ function App() {
 
   return (
 
-    <GestureHandlerRootView style={{flex: 1, }}>
+    <GestureHandlerRootView style={{flex: 1,  }}>
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
           <ErrorBoundary FallbackComponent={CustomFallback}>
             <CopilotProvider>
-    
+     <KeyboardProvider>
          <StatusBar barStyle="light-content" backgroundColor="#FE9F6A"/>
              
        <RootStack />
         
-           
+           </KeyboardProvider>
             </CopilotProvider>
           </ErrorBoundary>
         </PersistGate>

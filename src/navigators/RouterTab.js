@@ -10,6 +10,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
  
 import { Screens } from '../screens';
 import { Colors } from '../constants';
+import { Components } from '../components';
  
  
  
@@ -18,7 +19,7 @@ const Tab = createBottomTabNavigator();
 const RouterTab = () => {
   return (
     <Tab.Navigator
-      // tabBar={(props) => <MyTabBar {...props} />}
+      tabBar={(props) => <Components.BottomTab {...props} />}
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: Colors.PRIMARY_COLOR,
@@ -30,7 +31,7 @@ const RouterTab = () => {
       initialRouteName="Chat"
     >
       <Tab.Screen name="Chat" component={Screens.ChatScreen} />
- 
+  <Tab.Screen name="Friends" component={Screens.FriendsScreen} />
       <Tab.Screen name="Profile" component={Screens.Profile} />
  
             

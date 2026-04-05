@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StatusBar, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import { responsiveHeight, responsiveScreenHeight, responsiveScreenWidth } from 'react-native-responsive-dimensions';
 import { Colors } from '../../constants';
@@ -6,6 +6,7 @@ import { Colors } from '../../constants';
 const Background = ({children}) => {
   return (
   <View style={styles.container}>
+     <StatusBar translucent backgroundColor="transparent" />
    
    <View  style={styles.firstContainer} />
           <View  style={styles.secondContainer} />

@@ -75,11 +75,13 @@ type Translation = {
 
 
   login_message: string;
-
+  // ---------- new ---
+  Chat: string;
+  Friends: string;
 };
 
 const translations: Translation = {
-  Powered_By: "تنفيد وتطوير",
+ 
   Electronic_Village: "القرية الإلكترونية",
   Account_Settings: "إعدادات الحساب",
   News_Paper: "ورقة الأخبار",
@@ -218,5 +220,9 @@ const translations: Translation = {
   Any: 'أي',
   Exact_Phrase: 'العبارة بالضبط',
   All: 'الكل',
+
+    // ---------- new ---
+  Chat: "Chat",
+  Friends: "Friends",
 };
 export default translations;

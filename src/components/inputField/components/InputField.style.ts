@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
     fontSize: responsiveScreenFontSize(1.8),
     marginBottom: 3,
     fontFamily: Fonts.INTER_BOLD,
-    color: Colors.PRIMARY_COLOR,
+    color: Colors.PRIMARY_TEXT_COLOR,
   },
   inputContainer: {
     borderWidth: 1,

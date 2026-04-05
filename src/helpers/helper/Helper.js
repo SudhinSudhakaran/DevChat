@@ -9,4 +9,14 @@ export const Helper = {
   isEmpty(text) {
     return (text?.trim() ?? '').length === 0;
   },
+
+
+  getRoomId(userId1, userId2) {
+
+    console.log("userId1", userId1);
+    console.log("userId2", userId2);
+    const sortedIds = [userId1, userId2].sort();
+    const roomId = sortedIds.join('_');
+    return roomId;
+  }
 };

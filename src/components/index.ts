@@ -14,6 +14,8 @@ import SafeAreaContainer from "./safeContainer";
 import SizedBox from "./sizedBox";
 import Button from "./button";
 import Label from "./label";
+import UsersList from "./usersList";
+import Header from "./header";
 
 export const Components = {
  BottomTab,
@@ -27,7 +29,9 @@ export const Components = {
  Logo,
  InputField,
  Button,
- Label
+ Label,
+ UsersList,
+ Header,
  
  
 };

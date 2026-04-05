@@ -16,9 +16,8 @@ const HomeStack = () => {
       }}
       initialRouteName="Tabs">
       <Stack.Screen name="Tabs" component={RouterTab} />
-      
-      
-   
+      <Stack.Screen name="FriendsDetails" component={Screens.FriendsDetails} />
+      <Stack.Screen name="MessageScreen" component={Screens.MessageScreen} />
   
       
     </Stack.Navigator>

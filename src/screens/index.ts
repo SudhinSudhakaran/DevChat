@@ -5,6 +5,9 @@ import LoginScreen from "./login";
 import SignUpScreen from "./signUp";
 import SplashScreen from "./splash";
 import ChatScreen from "./chat";
+import FriendsScreen from "./friends";
+import FriendsDetails from "./friendsDetails";
+import MessageScreen from "./message";
  
 
 export const Screens = {
@@ -12,7 +15,8 @@ export const Screens = {
   Profile,
   ChatScreen,
   LoginScreen,
- 
+ FriendsScreen,
   SignUpScreen,
- 
+ FriendsDetails,
+ MessageScreen,
 };

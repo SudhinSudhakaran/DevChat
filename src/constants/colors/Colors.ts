@@ -1,6 +1,7 @@
 export const Colors: {
   WHITE_COLOR: string;
   PRIMARY_COLOR: string;
+  PRIMARY_TEXT_COLOR: string;
   GRAY_COLOR: string;
   OTP_INPUT_BORDER_COLOR: string;
   BLUR_COLOR: string;
@@ -12,4 +13,5 @@ export const Colors: {
   OTP_INPUT_BORDER_COLOR: "#D0D5DD",
   BLUR_COLOR: "rgba(235, 235, 235, 0.4)",
   BACKGROUND_COLOR: "#0dafef",
+  PRIMARY_TEXT_COLOR: "#0a0a0a",
 };

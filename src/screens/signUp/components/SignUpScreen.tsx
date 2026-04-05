@@ -10,9 +10,15 @@ import { useFocusEffect } from '@react-navigation/native'
 import I18n from '../../../i18n'
 import { useEncrypt } from '../../../hooks/useEncrypt'
 import { Helper } from '../../../helpers/helper/Helper'
-import { navigate } from '../../../utils/NavigationUtils'
-
+import { goBack, navigate, resetAndNavigate } from '../../../utils/NavigationUtils'
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import {doc ,setDoc, getDoc} from "firebase/firestore";
+ import { auth, db } from '../../../../firebase/firebaseConfig';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import { setIsUserIsLoggedIn, setUserDetails } from '../../../redux/slices/useDetails/userSlice'
+import { useDispatch } from 'react-redux'
 const SignUpScreen = () => {
+  const dispatch = useDispatch(); 
 const [isLoading, setIsLoading] = useState(false)
   const [inputs, setInputs] = useState({
     name: "",
@@ -99,98 +105,119 @@ const [isLoading, setIsLoading] = useState(false)
     }
   };
 
-  const handleSignUp = (data: any) => {
+  const handleSignUp = async (data: any) => {
     console.log(data);
+  try {
+    
+
+
+      const response = await createUserWithEmailAndPassword(auth, data.email, data.password);
+  
+  console.log("User signed up successfully:", response.user);
+let _user = {
+  name: data.name,
+  email: data.email,
+  profile_pic: "",
+  uid: response.user.uid,
+
+}
+  await setDoc(doc(db, "users", response.user.uid), _user);
+ 
+dispatch(setUserDetails({
+  ..._user,
+  email: data.email,
+  password: data.password,
+}));
+
+dispatch(setIsUserIsLoggedIn(true));
+ resetAndNavigate('HomeStack');
+  
+    } catch (error) {
+    console.log("Error signing up:", error);
+  }
   };
 
-  const signUpAction = () => {
-    navigate("SignUp")
-  };
+ 
 
-  return (
-    <Components.Background>
+return (
+  <Components.Background>
+    <KeyboardAwareScrollView
+      showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+      enableOnAndroid={true}
+      extraScrollHeight={20}
+      contentContainerStyle={{ flexGrow: 1 }}
+    >
       <Components.SizedBox verticalSpace={10} />
+
       <Components.Logo
         animationStyle={{
           width: responsiveWidth(50),
-          height: responsiveWidth(50)
-        }} />
-      <View style={styles.formContainer} >
+          height: responsiveWidth(50),
+        }}
+      />
+
+      <View style={styles.formContainer}>
         <Components.SizedBox verticalSpace={1} />
-       <Components.InputField
-        label={I18n.t("Name")}
-        placeholder={I18n.t("Name")}
-        onChangeText={(text) => handleOnchange(text, "name")}
-        error={errors.name}
-        onFocus={() => handleError(null, "name")}
-        keyboardType="email-address"
-        autoCapitalize="none"
-        value={inputs.name}
-        isPassword={false}
-      />
-      {/* Email */}
-      <Components.InputField
-        label={I18n.t("Email")}
-        placeholder={I18n.t("Enter_Your_Email")}
-        onChangeText={(text) => handleOnchange(text, "email")}
-        error={errors.email}
-        onFocus={() => handleError(null, "email")}
-        keyboardType="email-address"
-        autoCapitalize="none"
-        value={inputs.email}
-        isPassword={false}
-      />
-      {/* Password */}
-      <Components.InputField
-        label={I18n.t("Password")}
-        placeholder={". . . . . . . ."}
-        isPassword={true}
-        onChangeText={(text) => handleOnchange(text, "password")}
-        error={errors?.password}
-        onFocus={() => handleError(null, "password")}
-        keyboardType="default"
-        value={inputs.password}
-      />
 
-      {/* Confirm Password */}
-      <Components.InputField
-        label={I18n.t("Confirm_Password")}
-        placeholder={". . . . . . . ."}
-        isPassword={true}
-        onChangeText={(text) => handleOnchange(text, "confirmPassword")}
-        error={errors.confirmPassword}
-        onFocus={() => handleError(null, "confirmPassword")}
-        keyboardType="default"
-        value={inputs.confirmPassword}
-      />
-      <Components.SizedBox verticalSpace={3} />
-      {/* Custom Button Component */}
-      <Components.Button
-        buttonLabel={I18n.t("Signup_here")}
-        onPress={validation}
-        style={styles.button}
-        isLoading={isLoading}
-      />
+        <Components.InputField
+          label={I18n.t("Name")}
+          placeholder={I18n.t("Name")}
+          onChangeText={(text) => handleOnchange(text, "name")}
+          error={errors.name}
+          onFocus={() => handleError(null, "name")}
+          keyboardType="default"   // ✅ FIXED (was email-address)
+          autoCapitalize="none"
+          value={inputs.name}
+          isPassword={false}
+        />
+
+        <Components.InputField
+          label={I18n.t("Email")}
+          placeholder={I18n.t("Enter_Your_Email")}
+          onChangeText={(text) => handleOnchange(text, "email")}
+          error={errors.email}
+          onFocus={() => handleError(null, "email")}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          value={inputs.email}
+          isPassword={false}
+        />
+
+        <Components.InputField
+          label={I18n.t("Password")}
+          placeholder={". . . . . . . ."}
+          isPassword={true}
+          onChangeText={(text) => handleOnchange(text, "password")}
+          error={errors?.password}
+          onFocus={() => handleError(null, "password")}
+          value={inputs.password}
+        />
+
+        <Components.InputField
+          label={I18n.t("Confirm_Password")}
+          placeholder={". . . . . . . ."}
+          isPassword={true}
+          onChangeText={(text) => handleOnchange(text, "confirmPassword")}
+          error={errors.confirmPassword}
+          onFocus={() => handleError(null, "confirmPassword")}
+          value={inputs.confirmPassword}
+        />
+
+        <Components.SizedBox verticalSpace={3} />
+
+        <Components.Button
+          buttonLabel={I18n.t("Signup_here")}
+          onPress={validation}
+          style={styles.button}
+          isLoading={isLoading}
+        />
+
         <Components.SizedBox verticalSpace={6} />
-
-        <Components.Button buttonLabel="Login" onPress={validation} />
-        <Components.SizedBox verticalSpace={4} />
-        <Components.RtlContainer style={styles.signUpContainer}>
-        <Components.Label label={I18n.t("Dont_have_an_account")} />
-
-          <Components.SizedBox horizontalSpace={2} />
-          <Components.Label
-            label={I18n.t("Signup_here")}
-            style={styles.signUpText}
-            onPress={signUpAction}
-          />
-        </Components.RtlContainer>
-
-
-
       </View>
-    </Components.Background>
-  )
+    </KeyboardAwareScrollView>
+  </Components.Background>
+);
 }
 
 export default SignUpScreen

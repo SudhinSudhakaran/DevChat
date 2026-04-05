@@ -11,8 +11,8 @@ import {
 import {useSelector} from 'react-redux';
 import {copilot, walkthroughable, CopilotStep} from 'react-native-copilot';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
- 
+import AntDesign from 'react-native-vector-icons/AntDesign';
+ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
  
 
 import I18n from '../../i18n';
@@ -24,7 +24,7 @@ import { navigate } from '../../utils/NavigationUtils';
 interface RootState {
   userLogin: {
     user: any;
-    isShowWalkThrough: boolean;
+ 
     locale: string;
   };
 }
@@ -65,10 +65,8 @@ const TitleSession: React.FC<TitleSessionProps> = ({name, isActive}) => {
 const BottomTab: React.FC<BottomTabProps> = props => {
   const [keyboardVisible, setKeyboardVisible] = useState(false);
 
-  const {user, isShowWalkThrough, locale} = useSelector(
-    (state: RootState) => state.userLogin,
-  );
-
+ 
+const {language,isShowWalkThrough }= useSelector((state: RootState) => state.ui);
   useEffect(() => {
     
 
@@ -83,6 +81,16 @@ const BottomTab: React.FC<BottomTabProps> = props => {
     }
   }, [isShowWalkThrough]);
 
+
+
+
+
+
+
+
+
+
+  
   return (
     <View
       style={Platform.OS === 'ios' ? styles.iosContainer : styles.container}>
@@ -90,15 +98,15 @@ const BottomTab: React.FC<BottomTabProps> = props => {
       {/* Home */}
       <TouchableOpacity
         style={styles.contentContainer}
-        onPress={() => navigate('ChatScreen')}>
+        onPress={() => navigate('Tabs',{screen:'Chat'})}>
         <CopilotStep
           text={I18n.t('Explore_Chat')}
           order={1}
           name={I18n.t('ChatScreen')}>
           <CopilotText>
-            <Ionicons
-              name="home"
-              size={25}
+            <AntDesign
+              name="wechat"
+              size={28}
               color={
                 props.state.index === 0 ? Colors.WHITE_COLOR : INACTIVE_COLOR
               }
@@ -114,14 +122,14 @@ const BottomTab: React.FC<BottomTabProps> = props => {
       {/* Festivals */}
       <TouchableOpacity
         style={styles.contentContainer}
-        onPress={() => navigate('Friends')}>
+        onPress={() => navigate('Tabs',{screen:'Friends'})}>
         <CopilotStep
           text={I18n.t('View_Friends')}
           order={2}
           name={I18n.t('Friends')}>
           <CopilotText>
-            <Ionicons
-              name="videocam"
+            <FontAwesome5
+              name="users"
               size={25}
               color={
                 props.state.index === 1 ? Colors.WHITE_COLOR : INACTIVE_COLOR
@@ -138,7 +146,7 @@ const BottomTab: React.FC<BottomTabProps> = props => {
       {/* Profile */}
       <TouchableOpacity
         style={styles.contentContainer}
-        onPress={() => navigate('Profile')}>
+        onPress={() => navigate('Tabs',{screen:'Profile'})}>
         <CopilotStep
           text={I18n.t(
             'Signup_to_personalize_experience_access_your_Profile',
@@ -189,11 +197,11 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 50,
     alignSelf: 'center',
-    flexDirection: 'row',
+   
   },
   titleText: {
     fontFamily: Fonts.INTER_REGULAR,
     fontSize: 15,
-    marginLeft: 8,
+    marginLeft: 4,
   },
 });

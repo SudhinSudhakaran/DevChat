@@ -132,6 +132,9 @@ type Translation = {
   Any: string;
   Exact_Phrase: string;
   All: string;
+  // ---------- new ---
+  Chat: string;
+  Friends: string;
 };
 
 const translations: Translation = {
@@ -273,5 +276,9 @@ const translations: Translation = {
   Create_an_account: "Create an account",
   Subscribe: "SUBSCRIBE",
   Password_length_validation: "Password length must be 6 characters ",
+  // ---------- new ---
+  Chat: "Chat",
+  Friends: "Friends",
+
 };
 export default translations;

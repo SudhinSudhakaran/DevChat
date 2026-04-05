@@ -23,7 +23,9 @@ const SplashScreen: React.FC = () => {
   const isUserLoggedIn = useSelector(
     (state: RootState) => state.user.isUserLoggedIn
   );
-
+const userDetails = useSelector((state: RootState) => state.user?.userDetails);
+  console.log("isUserLoggedIn in SplashScreen:", isUserLoggedIn);
+  console.log("userDetails in SplashScreen:", userDetails);
   useEffect(() => {
     timeoutRef.current = setTimeout(() => {
       if (isUserLoggedIn) {
@@ -31,7 +33,7 @@ const SplashScreen: React.FC = () => {
       } else {
         navigate('AuthStack');
       }
-    }, 2000);
+    }, 3000);
 
     return () => {
       if (timeoutRef.current) {

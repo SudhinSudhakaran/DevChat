@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: responsiveScreenWidth(4),
     fontFamily: Fonts.INTER_MEDIUM,
     fontSize: responsiveScreenFontSize(2),
-    color: Colors.PRIMARY_COLOR,
+    color: Colors.PRIMARY_TEXT_COLOR,
   },
 });
 

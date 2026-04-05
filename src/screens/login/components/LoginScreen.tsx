@@ -1,4 +1,4 @@
-import { Keyboard, StyleSheet, Text, View } from 'react-native'
+import {Keyboard, Platform, StyleSheet, Text, View} from 'react-native'
 import React, { useState } from 'react'
 import { Components } from '../../../components'
 import styles from './LoginScreen.styles'
@@ -8,9 +8,15 @@ import I18n from '../../../i18n'
 import { useEncrypt } from '../../../hooks/useEncrypt'
 import { Helper } from '../../../helpers/helper/Helper'
 import { navigate } from '../../../utils/NavigationUtils'
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth, db } from '../../../../firebase/firebaseConfig'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import { doc, getDoc } from 'firebase/firestore'
+import { useDispatch } from 'react-redux'
+import { setIsUserIsLoggedIn, setUserDetails } from '../../../redux/slices/useDetails/userSlice'
 
 const LoginScreen = () => {
-
+ const dispatch = useDispatch()
   const [inputs, setInputs] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({ email: "", password: "" });
   useFocusEffect(
@@ -72,9 +78,35 @@ const LoginScreen = () => {
     }
   };
 
-  const handleLogin = (data: any) => {
+  const handleLogin = async (data: any) => {
     console.log(data);
+
+const response = await signInWithEmailAndPassword(auth, data.email, data.password);
+ console.log("User logged in successfully:", response.user);
+
+ getUserDetails(response.user.uid);
   };
+
+const getUserDetails = async(userId: string) => {
+  // TODO: Implement get user details
+ 
+
+  const docRef = doc(db, "users", userId);
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists()) {
+    let data = docSnap.data();
+   dispatch(setUserDetails(data));
+   dispatch(setIsUserIsLoggedIn(true))
+   navigate("HomeStack")
+  } else {
+    console.log("No such document!");
+  }
+
+}
+
+
+
+
 
   const signUpAction = () => {
     navigate("SignUp")
@@ -82,14 +114,22 @@ const LoginScreen = () => {
 
   return (
     <Components.Background>
+          <KeyboardAwareScrollView
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            enableOnAndroid={true}
+            extraScrollHeight={20}
+            contentContainerStyle={{ flexGrow: 1 }}
+          >
       <Components.SizedBox verticalSpace={20} />
       <Components.Logo
         animationStyle={{
           width: responsiveWidth(50),
           height: responsiveWidth(50)
         }} />
+        <Components.SizedBox verticalSpace={2} />
       <View style={styles.formContainer} >
-        <Components.SizedBox verticalSpace={10} />
+        <Components.SizedBox verticalSpace={2} />
         <Components.InputField
           label={I18n.t("Email")}
           placeholder={I18n.t("Enter_Your_Email")}
@@ -124,11 +164,13 @@ const LoginScreen = () => {
             style={styles.signUpText}
             onPress={signUpAction}
           />
+
         </Components.RtlContainer>
 
 
 
       </View>
+      </KeyboardAwareScrollView>
     </Components.Background>
   )
 }

@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
 formContainer:{
   backgroundColor: '#ffffffa3',
   width: responsiveWidth(100),
-  height: responsiveHeight(60),
+ height: responsiveHeight(50),
   position:'absolute',
   bottom:0,
   borderRadius:30,

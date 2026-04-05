@@ -11,6 +11,7 @@ import {navigationRef} from '../utils/NavigationUtils';
 import { Screens } from '../screens';
 import HomeStack from './HomeStack';
 import AuthStack from './AuthStack';
+import { Colors } from '../constants';
 
 const Stack = createNativeStackNavigator();
 const RootStack = () => {
@@ -20,6 +21,8 @@ const RootStack = () => {
         screenOptions={{
           headerShown: false,
           animation: 'none',
+          headerShown: false,
+          contentStyle: { backgroundColor: Colors.BACKGROUND_COLOR },
         }}
         initialRouteName="SplashScreen">
        
