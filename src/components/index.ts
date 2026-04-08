@@ -16,6 +16,7 @@ import Button from "./button";
 import Label from "./label";
 import UsersList from "./usersList";
 import Header from "./header";
+import FriendRequestList from "./friendRequestList";
 
 export const Components = {
  BottomTab,
@@ -32,6 +33,6 @@ export const Components = {
  Label,
  UsersList,
  Header,
- 
+ FriendRequestList
  
 };

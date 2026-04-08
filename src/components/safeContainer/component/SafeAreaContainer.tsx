@@ -24,8 +24,7 @@ const SafeAreaContainer: React.FC<SafeAreaContainerProps> = ({
   const containerStyle: ViewStyle = {
     flex: 1,
 
-    // paddingBottom: insets.bottom,
-    backgroundColor: Colors.BACKGROUND_COLOR,
+ 
     ...style, // Merging user-provided style
 
     paddingHorizontal: 8,
@@ -34,7 +33,7 @@ const SafeAreaContainer: React.FC<SafeAreaContainerProps> = ({
   return (
     <SafeAreaView
       edges={["top"]}
-      style={{ flex: 1, backgroundColor: Colors.BACKGROUND_COLOR }}
+      style={{ flex: 1,  }}
     >
     
 

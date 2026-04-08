@@ -9,6 +9,7 @@ import {
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
 import {goBack} from "../../../utils/NavigationUtils.tsx";
+import { Colors } from "../../../constants/index.ts";
 
 interface Props {
     title?: string;
@@ -56,6 +57,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         paddingHorizontal: 12,
+        backgroundColor: Colors.PRIMARY_COLOR,
     },
     left: {
         width: 40,

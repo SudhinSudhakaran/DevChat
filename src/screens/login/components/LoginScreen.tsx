@@ -14,6 +14,9 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { doc, getDoc } from 'firebase/firestore'
 import { useDispatch } from 'react-redux'
 import { setIsUserIsLoggedIn, setUserDetails } from '../../../redux/slices/useDetails/userSlice'
+import Toast from 'react-native-simple-toast';
+import { checkErrorMessage } from '../../../helpers/errorHandler/checkErrorMessage'
+
 
 const LoginScreen = () => {
  const dispatch = useDispatch()
@@ -78,14 +81,24 @@ const LoginScreen = () => {
     }
   };
 
-  const handleLogin = async (data: any) => {
-    console.log(data);
+ const handleLogin = async (data: any) => {
+  try {
+    const response = await signInWithEmailAndPassword(
+      auth,
+      data.email,
+      data.password
+    );
 
-const response = await signInWithEmailAndPassword(auth, data.email, data.password);
- console.log("User logged in successfully:", response.user);
+    console.log("User logged in successfully:", response.user);
+    getUserDetails(response.user.uid);
 
- getUserDetails(response.user.uid);
-  };
+  } catch (error: any) {
+    console.log("Error logging in:", error);
+
+    checkErrorMessage(error);
+ 
+  }
+};
 
 const getUserDetails = async(userId: string) => {
   // TODO: Implement get user details

@@ -23,9 +23,9 @@ interface Props {
     onPressUser?: (user: User) => void;
 }
 
-const UsersList: React.FC<Props> = ({ users, onPressUser }) => {
+const FriendRequestList: React.FC<Props> = ({ users, onPressUser }) => {
     const renderItem = ({ item }: { item: User }) => {
-    
+    console.log('item ====', item)
         return (
             <TouchableOpacity
                 style={styles.itemContainer}
@@ -56,7 +56,7 @@ const UsersList: React.FC<Props> = ({ users, onPressUser }) => {
     );
 };
 
-export default UsersList;
+export default FriendRequestList;
 
 const styles = StyleSheet.create({
     list: {

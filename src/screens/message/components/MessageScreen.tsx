@@ -37,6 +37,9 @@ interface Message {
   id: string;
   text: string;
   sender: 'me' | 'other';
+  userId?: string;
+  profile_pic?: string;
+  senderName?: string;
 }
 
 const MessageScreen: React.FC<Props> = ({ route }) => {
@@ -120,7 +123,7 @@ if(inputRef.current) {
   };
 
   const renderItem = ({ item }: { item: Message }) => {
-    const isMe = item.userId === userDetails.uid;
+    const isMe = item?.userId === userDetails.uid;
 
     return (
       <View

@@ -17,14 +17,16 @@ const handleLogout = async () => {
   try {
     await signOut(auth);
 
-    // Clear redux
+    // ✅ Clear persisted storage FIRST
+    await persistor.purge();
+
+    // ✅ Clear redux
     dispatch(setUserDetails(null));
     dispatch(setIsUserIsLoggedIn(false));
 
-    // Navigate to auth
- 
+    // ✅ Then navigate
     resetAndNavigate("AuthStack");
-await persistor.purge();
+
     console.log("User logged out successfully");
   } catch (error) {
     console.log("Logout error:", error);

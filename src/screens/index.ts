@@ -19,4 +19,5 @@ export const Screens = {
   SignUpScreen,
  FriendsDetails,
  MessageScreen,
+ 
 };

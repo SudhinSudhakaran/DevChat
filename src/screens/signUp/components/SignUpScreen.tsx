@@ -5,7 +5,7 @@ import { Keyboard, StyleSheet, Text, View } from 'react-native'
 import React, { useState } from 'react'
 import { Components } from '../../../components'
 import styles from '../../login/components/LoginScreen.styles'
-import { responsiveWidth } from 'react-native-responsive-dimensions'
+import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions'
 import { useFocusEffect } from '@react-navigation/native'
 import I18n from '../../../i18n'
 import { useEncrypt } from '../../../hooks/useEncrypt'
@@ -17,6 +17,7 @@ import {doc ,setDoc, getDoc} from "firebase/firestore";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { setIsUserIsLoggedIn, setUserDetails } from '../../../redux/slices/useDetails/userSlice'
 import { useDispatch } from 'react-redux'
+import { checkErrorMessage } from '../../../helpers/errorHandler/checkErrorMessage'
 const SignUpScreen = () => {
   const dispatch = useDispatch(); 
 const [isLoading, setIsLoading] = useState(false)
@@ -134,6 +135,7 @@ dispatch(setIsUserIsLoggedIn(true));
   
     } catch (error) {
     console.log("Error signing up:", error);
+     checkErrorMessage(error);
   }
   };
 
@@ -141,6 +143,7 @@ dispatch(setIsUserIsLoggedIn(true));
 
 return (
   <Components.Background>
+   
     <KeyboardAwareScrollView
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
@@ -148,7 +151,9 @@ return (
       extraScrollHeight={20}
       contentContainerStyle={{ flexGrow: 1 }}
     >
-      <Components.SizedBox verticalSpace={10} />
+    <Components.SafeAreaContainer>
+      <Components.Header />
+ 
 
       <Components.Logo
         animationStyle={{
@@ -157,9 +162,8 @@ return (
         }}
       />
 
-      <View style={styles.formContainer}>
-        <Components.SizedBox verticalSpace={1} />
-
+      <View style={{...styles.formContainer, height: responsiveHeight(60),}}>
+        <Components.SizedBox verticalSpace={1} /> 
         <Components.InputField
           label={I18n.t("Name")}
           placeholder={I18n.t("Name")}
@@ -213,9 +217,11 @@ return (
           isLoading={isLoading}
         />
 
-        <Components.SizedBox verticalSpace={6} />
+        <Components.SizedBox verticalSpace={7} />
       </View>
+        </Components.SafeAreaContainer>
     </KeyboardAwareScrollView>
+     
   </Components.Background>
 );
 }
