@@ -24,3 +24,4 @@ export const db = getFirestore(app);
 export const usersRef = collection(db, "users");
 export const chatRoomsRef = collection(db, "chatRooms");
 export const friendRequestRef = collection(db, "friendRequest");
+export const friendsListRef = collection(db, "friendsList");

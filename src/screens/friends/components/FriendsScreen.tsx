@@ -6,16 +6,22 @@ import { db, friendRequestRef, usersRef } from '../../../../firebase/firebaseCon
 import {navigate} from "../../../utils/NavigationUtils.tsx";
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store/Store.ts';
+import { IS_FROM } from '../../../constants/enums/Enums.ts';
+import { useFocusEffect } from '@react-navigation/native';
 const FriendsScreen = () => {
   const userDetails = useSelector((state: RootState) => state.user?.userDetails);
 const [usersList, setUsersList] = React.useState<any[]>([]);
 const [friendList , setFriendList] = React.useState<any[]>([]);
 console.log('userDetails.uid',userDetails.uid)
-useEffect(() => {
  
-  getFriendRequestList();
+useFocusEffect(
+  React.useCallback(() => {
+    getFriendRequestList();
+  }, [])
+);
 
-}, []);
+
+
 
 const getFriendRequestList = async () => {
   try {
@@ -73,14 +79,16 @@ const getUsers = async (requests: any[]) => {
     console.error("Error fetching users:", error);
   }
 };
-    const   onPressUser =(user)=>{
-    navigate("FriendsDetails", { user });
+    const   onPressUser =(user:any, isFrom:IS_FROM)=>{
+    navigate("FriendsDetails", { user, isFrom });
   }
   return (
     <Components.Background>
      <Components.SafeAreaContainer>
-      <Components.FriendRequestList users={friendList} onPressUser={onPressUser} />
+      <View style={{ flex:1, backgroundColor:'#fff' }}>
+  {  friendList?.length > 0 && <Components.FriendRequestList friendList={friendList} onPressUser={onPressUser} />}
 <Components.UsersList users={usersList} onPressUser={onPressUser} />
+</View>
   </Components.SafeAreaContainer>
   </Components.Background>
   )

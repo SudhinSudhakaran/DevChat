@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import {Components} from "../../index.ts";
 import GetImage from "../../getImage";
+import { IS_FROM } from "../../../constants/enums/Enums.ts";
 
 interface User {
     id: string;
@@ -23,13 +24,13 @@ interface Props {
     onPressUser?: (user: User) => void;
 }
 
-const FriendRequestList: React.FC<Props> = ({ users, onPressUser }) => {
+const FriendRequestList: React.FC<Props> = ({ friendList, onPressUser }) => {
     const renderItem = ({ item }: { item: User }) => {
-    console.log('item ====', item)
+   
         return (
             <TouchableOpacity
                 style={styles.itemContainer}
-                onPress={() => onPressUser?.(item)}
+                onPress={() => onPressUser?.(item ,IS_FROM.FRIEND_REQUEST)}
             >
 
 
@@ -45,14 +46,26 @@ const FriendRequestList: React.FC<Props> = ({ users, onPressUser }) => {
         );
     };
 
+    const ListHeader = () => (
+        <View style={{  marginBottom: 16,  }}>
+            <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+                Friend Requests <Text style={{color:'red'}} >{friendList.length}</Text>
+            </Text>
+        </View>
+    );
     return (
+        <View style={{ }} >
         <FlatList
-            data={users}
+            data={friendList}
             keyExtractor={(item) => item.id}
             renderItem={renderItem}
+            ListHeaderComponent={ListHeader}
             contentContainerStyle={styles.list}
             showsVerticalScrollIndicator={false}
+            scrollEnabled={false}
+            
         />
+        </View>
     );
 };
 

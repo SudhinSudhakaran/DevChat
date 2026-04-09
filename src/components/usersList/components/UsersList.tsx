@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import {Components} from "../../index.ts";
 import GetImage from "../../getImage";
+import { IS_FROM } from "../../../constants/enums/Enums.ts";
 
 interface User {
     id: string;
@@ -29,7 +30,7 @@ const UsersList: React.FC<Props> = ({ users, onPressUser }) => {
         return (
             <TouchableOpacity
                 style={styles.itemContainer}
-                onPress={() => onPressUser?.(item)}
+                onPress={() => onPressUser?.(item, IS_FROM.USERS_LIST)}
             >
 
 
@@ -44,14 +45,22 @@ const UsersList: React.FC<Props> = ({ users, onPressUser }) => {
             </TouchableOpacity>
         );
     };
-
+    const ListHeader = () => (
+        <View style={{  marginBottom: 16,  }}>
+            <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+                People you may know 
+            </Text>
+        </View>
+    );
     return (
         <FlatList
             data={users}
+             ListHeaderComponent={ListHeader}
             keyExtractor={(item) => item.id}
             renderItem={renderItem}
             contentContainerStyle={styles.list}
             showsVerticalScrollIndicator={false}
+             scrollEnabled={false}
         />
     );
 };

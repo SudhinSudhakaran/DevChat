@@ -27,7 +27,7 @@ const SafeAreaContainer: React.FC<SafeAreaContainerProps> = ({
  
     ...style, // Merging user-provided style
 
-    paddingHorizontal: 8,
+    
   };
 
   return (

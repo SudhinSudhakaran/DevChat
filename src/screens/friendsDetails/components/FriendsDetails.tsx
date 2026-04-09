@@ -12,8 +12,11 @@ import { responsiveHeight, responsiveWidth } from "react-native-responsive-dimen
 import { Colors } from "../../../constants";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store/Store";
-import { addDoc, collection, doc, onSnapshot, orderBy, query, setDoc, Timestamp } from "firebase/firestore";
-import { db } from "../../../../firebase/firebaseConfig";
+import { addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, setDoc, Timestamp } from "firebase/firestore";
+import { db, friendRequestRef } from "../../../../firebase/firebaseConfig";
+import { IS_FROM } from "../../../constants/enums/Enums";
+import { checkErrorMessage } from "../../../helpers/errorHandler/checkErrorMessage";
+import { goBack } from "../../../utils/NavigationUtils";
 interface User {
     id: string;
     name: string;
@@ -27,12 +30,13 @@ interface Props {
     route: {
         params: {
             user: User;
+            isFrom: IS_FROM;
         };
     };
 }
 
 const FriendDetails: React.FC<Props> = ({ route }) => {
-    const { user } = route.params;
+    const { user,isFrom } = route.params;
  
  const userDetails = useSelector((state: RootState) => state.user?.userDetails);
 
@@ -60,7 +64,7 @@ const addUserToFriends = async (data: User) => {
 
     // Reference: friendRequest/{receiverUid}/requestList
     const docRef = doc(db, 'friendRequest', data.uid);
-    const friendRequestRef = collection(docRef, 'requestList');
+   
 
     // Add document
     await addDoc(friendRequestRef, friendRequest);
@@ -71,9 +75,99 @@ const addUserToFriends = async (data: User) => {
   }
 };
 
+ const acceptFriendRequest = async (data: User) => {
+
+    console.log('Accepting friend request from:', data);
+  try {
+    if (!userDetails?.uid) {
+      console.log('❌ current user uid missing');
+      return;
+    }
+
+    if (!data?.id) {
+      console.log('❌ other user uid missing', data);
+      return;
+    }
+
+    const currentUserId = userDetails.uid;
+    const otherUserId = data.id;
+
+    console.log('✅ currentUserId:', currentUserId);
+    console.log('✅ otherUserId:', otherUserId);
+
+    const user1 = {
+      name: userDetails?.name || '',
+      email: userDetails?.email || '',
+      profile_pic: userDetails?.profile_pic || '',
+      uid: currentUserId,
+      createdAt: Timestamp.now(),
+    };
+
+    const user2 = {
+      name: data?.name || '',
+      email: data?.email || '',
+      profile_pic: data?.profile_pic || '',
+      uid: otherUserId,
+      createdAt: Timestamp.now(),
+    };
+
+    console.log('✅ user1 (current user):', user1);
+    console.log('✅ user2 (other user):', user2);
+
+    // ✅ Add both sides
+    await setDoc(
+      doc(db, 'friendList', currentUserId, 'friends', otherUserId),
+      user2
+    );
+
+    await setDoc(
+      doc(db, 'friendList', otherUserId, 'friends', currentUserId),
+      user1
+    );
+  
+
+    console.log('✅ Friend request accepted');
+    removeAcceptedUserFromFriendRequest(currentUserId, otherUserId);
+  } catch (error) {
+    console.log('❌ Error accepting friend request:', error);
+    checkErrorMessage(error);
+  }
+};
+
+ const removeAcceptedUserFromFriendRequest = async (currentUserId: string, otherUserId: string) => {
+    try {
+          // 🔹 OPTIONAL: remove friend request
+    await deleteDoc(
+      doc(db, 'friendRequests', currentUserId, 'requestList', otherUserId)
+    );
+    goBack()
+    } catch (error) {
+        console.log('❌ Error removing friend request:', error);
+    }
+      }
+
+const rejectFriendRequest = async (data: User) => {
+    try {
+        if (!userDetails?.uid) {
+            console.log('User not logged in');
+            return;
+        }
+
+        const currentUserId = userDetails.uid;
+        const otherUserId = data.id;
+
+        // Remove the friend request document
+        await deleteDoc(
+            doc(db, 'friendRequests', currentUserId, 'requestList', otherUserId)
+        );
+
+        console.log('Friend request rejected successfully');
+    } catch (error) {
+        console.log('Error rejecting friend request:', error);
+    }
+}
 
 
-    
     return (
         <Components.SafeAreaContainer
         >
@@ -98,7 +192,11 @@ const addUserToFriends = async (data: User) => {
                 </View>
 
             </View>
-            <Components.RtlContainer  >
+
+
+
+{isFrom !== IS_FROM.FRIEND_REQUEST ?
+            <Components.RtlContainer style={{paddingHorizontal:8}}  >
                 <TouchableOpacity onPress={() => addUserToFriends(user)} style={styles.button}>
                     <Text style={styles.buttonText}>Add Friend</Text>
                 </TouchableOpacity>
@@ -107,6 +205,24 @@ const addUserToFriends = async (data: User) => {
                     <Text style={styles.buttonText}>Block</Text>
                 </TouchableOpacity>
             </Components.RtlContainer>
+            :
+               <Components.RtlContainer style={{paddingHorizontal:8}}  >
+                <TouchableOpacity onPress={() => acceptFriendRequest(user)} style={styles.button}>
+                    <Text style={styles.buttonText}>Accept</Text>
+                </TouchableOpacity>
+                <Components.SizedBox horizontalSpace={4} />
+                <TouchableOpacity style={styles.button}>
+                    <Text style={styles.buttonText}>Reject</Text>
+                </TouchableOpacity>
+            </Components.RtlContainer>
+        
+        
+        
+        }
+
+
+
+
         </Components.SafeAreaContainer>
     );
 };
