@@ -7,31 +7,50 @@ import {
 } from "react-native";
 
 import { Components } from "../../../components";
-import { responsiveHeight, responsiveWidth } from "react-native-responsive-dimensions";
+import { responsiveWidth } from "react-native-responsive-dimensions";
 import { Colors } from "../../../constants";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store/Store";
-
 import {
+    query,
+    where,
+    getDocs,
+    addDoc,
+    updateDoc,
     doc,
-    deleteDoc,
-    setDoc,
     Timestamp,
 } from "firebase/firestore";
-
-import { db } from "../../../../firebase/firebaseConfig";
+import { db, friendRequestRef, friendsListRef } from "../../../../firebase/firebaseConfig";
 import { IS_FROM } from "../../../constants/enums/Enums";
-import { checkErrorMessage } from "../../../helpers/errorHandler/checkErrorMessage";
 import { goBack } from "../../../utils/NavigationUtils";
 
+/**
+ * ✅ FIRESTORE COLLECTIONS (matches firebaseConfig.ts exports):
+ *
+ *  friendRequest  (friendRequestRef)  ← collection(db, "friendRequest")
+ *   └── {docId}
+ *         fromUserId:       string
+ *         toUserId:         string
+ *         status:           "pending" | "accepted" | "rejected"
+ *         senderName:       string
+ *         senderEmail:      string
+ *         senderProfilePic: string
+ *         createdAt:        Timestamp
+ *
+ *  friendsList  (friendsListRef)      ← collection(db, "friendsList")
+ *   └── {docId}
+ *         users:     [userId1, userId2]
+ *         createdAt: Timestamp
+ */
+
 interface User {
-    id?: string; // optional (don't use this)
+    id?: string;
     name: string;
     email: string;
     profile_pic?: string;
-    uid: string; // ✅ always use this
+    uid: string;
     about?: string;
-    request_sender_id?: string;
+    fromUserId?: string; // populated when navigating from a friend request
 }
 
 interface Props {
@@ -39,49 +58,52 @@ interface Props {
         params: {
             user: User;
             isFrom: IS_FROM;
-            getFriendRequestList: () => void;
         };
     };
 }
 
 const FriendDetails: React.FC<Props> = ({ route }) => {
-    const { user, isFrom, getFriendRequestList } = route.params;
-
+    const { user, isFrom } = route.params;
     const userDetails = useSelector((state: RootState) => state.user?.userDetails);
 
     // =========================================================
     // ✅ SEND FRIEND REQUEST
+    //    Writes one doc to friendRequest collection.
+    //    FriendsScreen's outgoing-pending listener auto-hides
+    //    this user from "People You May Know" immediately.
     // =========================================================
     const addUserToFriends = async (data: User) => {
         try {
             if (!userDetails?.uid) return;
 
-            const senderId = userDetails.uid;
-            const receiverId = data.uid;
-
-            const friendRequest = {
-                name: userDetails.name,
-                email: userDetails.email,
-                profile_pic: userDetails.profile_pic || "",
-                request_sender_id: senderId,
-                request_receiver_id: receiverId,
-                createdAt: Timestamp.now(),
-            };
-
-            /**
-             * 🔥 STRUCTURE:
-             * friendRequests
-             *   └── receiverId
-             *         └── requestList
-             *               └── senderId (DOC ID)
-             */
-
-            await setDoc(
-                doc(db, "friendRequests", receiverId, "requestList", senderId),
-                friendRequest
+            // Guard: prevent duplicate pending requests
+            const duplicateQuery = query(
+                friendRequestRef,
+                where("fromUserId", "==", userDetails.uid),
+                where("toUserId", "==", data.uid),
+                where("status", "==", "pending")
             );
+            const duplicateSnap = await getDocs(duplicateQuery);
+            if (!duplicateSnap.empty) {
+                console.log("⚠️ Request already sent");
+                goBack();
+                return;
+            }
+
+            await addDoc(friendRequestRef, {
+                fromUserId: userDetails.uid,
+                toUserId: data.uid,
+                status: "pending",
+                // Denormalised sender info so receiver can display it
+                // without an extra users lookup
+                senderName: userDetails.name || "",
+                senderEmail: userDetails.email || "",
+                senderProfilePic: userDetails.profile_pic || "",
+                createdAt: Timestamp.now(),
+            });
 
             console.log("✅ Friend request sent");
+            goBack();
         } catch (error) {
             console.log("❌ Error sending request:", error);
         }
@@ -89,116 +111,91 @@ const FriendDetails: React.FC<Props> = ({ route }) => {
 
     // =========================================================
     // ✅ ACCEPT FRIEND REQUEST
+    //    1. Find the pending request doc (fromUserId → toUserId)
+    //    2. Update its status → "accepted"
+    //    3. Create one doc in friendsList with users: [id1, id2]
+    //
+    //    After step 2:
+    //      • FriendsScreen incoming-requests listener drops it (status != pending)
+    //    After step 3:
+    //      • ChatScreen friends listener picks up the new friendship
+    //      • FriendsScreen "People You May Know" listener drops the user
     // =========================================================
     const acceptFriendRequest = async (data: User) => {
-
-        console.log('Data:', data)
-
-
         try {
             if (!userDetails?.uid) return;
 
             const currentUserId = userDetails.uid;
-            const otherUserId = data?.id; // ✅ FIXED (was data.id ❌)
+            // fromUserId is who SENT the request (the other person)
+            const otherUserId = data.fromUserId || data.uid;
 
-            /**
-             * 🔥 Create friend object for both users
-             */
-            const currentUserData = {
-                name: userDetails.name || "",
-                email: userDetails.email || "",
-                profile_pic: userDetails.profile_pic || "",
-                uid: currentUserId,
-                createdAt: Timestamp.now(),
-            };
+            // Step 1: locate the pending request document
+            const requestQuery = query(
+                friendRequestRef,
+                where("fromUserId", "==", otherUserId),
+                where("toUserId", "==", currentUserId),
+                where("status", "==", "pending")
+            );
+            const requestSnap = await getDocs(requestQuery);
 
-            const otherUserData = {
-                name: data.name || "",
-                email: data.email || "",
-                profile_pic: data.profile_pic || "",
-                uid: otherUserId,
+            if (requestSnap.empty) {
+                console.log("❌ No pending request found");
+                return;
+            }
+
+            // Step 2: mark request as accepted
+            await updateDoc(
+                doc(db, "friendRequest", requestSnap.docs[0].id),
+                { status: "accepted" }
+            );
+
+            // Step 3: create the bi-directional friendship entry
+            await addDoc(friendsListRef, {
+                users: [currentUserId, otherUserId],
                 createdAt: Timestamp.now(),
-            };
-            console.log("DEBUG IDS:", {
-                currentUserId,
-                otherUserId,
-                data
             });
-            /**
-             * 🔥 STRUCTURE:
-             * friendList
-             *   └── userId
-             *         └── friends
-             *               └── friendId
-             */
 
-            // Add friend to current user
-            await setDoc(
-                doc(db, "friendList", currentUserId, "friends", otherUserId),
-                otherUserData
-            );
-
-            // Add current user to other user
-            await setDoc(
-                doc(db, "friendList", otherUserId, "friends", currentUserId),
-                currentUserData
-            );
-
-            console.log("✅ Friend added successfully");
-
-            // 🔥 Remove request after accepting
-            await removeAcceptedUserFromFriendRequest(currentUserId, otherUserId);
-
+            console.log("✅ Friend request accepted");
+            goBack();
         } catch (error) {
             console.log("❌ Error accepting request:", error);
-            checkErrorMessage(error);
         }
     };
 
     // =========================================================
-    // ✅ REMOVE REQUEST (AFTER ACCEPT / REJECT)
-    // =========================================================
-    const removeAcceptedUserFromFriendRequest = async (
-        currentUserId: string,
-        otherUserId: string
-    ) => {
-        try {
-            /**
-             * 🔥 Same path used during creation
-             */
-            await deleteDoc(
-                doc(db, "friendRequests", currentUserId, "requestList", otherUserId)
-            );
-
-            console.log("✅ Friend request removed");
-
-            getFriendRequestList?.();
-            goBack();
-
-        } catch (error) {
-            console.log("❌ Error removing request:", error);
-        }
-    };
-
-
-
-
-    // =========================================================
-    // ❌ REJECT REQUEST
+    // ❌ REJECT FRIEND REQUEST
+    //    Updates status → "rejected".
+    //    FriendsScreen incoming-requests listener auto-removes it
+    //    because the query filters on status == "pending".
+    //    The rejected user reappears in "People You May Know"
+    //    automatically (no longer in pending requests).
     // =========================================================
     const rejectFriendRequest = async (data: User) => {
         try {
             if (!userDetails?.uid) return;
 
-            const currentUserId = userDetails.uid;
-            const otherUserId = data.uid;
+            const otherUserId = data.fromUserId || data.uid;
 
-            await deleteDoc(
-                doc(db, "friendRequests", currentUserId, "requestList", otherUserId)
+            const requestQuery = query(
+                friendRequestRef,
+                where("fromUserId", "==", otherUserId),
+                where("toUserId", "==", userDetails.uid),
+                where("status", "==", "pending")
+            );
+            const requestSnap = await getDocs(requestQuery);
+
+            if (requestSnap.empty) {
+                console.log("❌ No pending request found");
+                return;
+            }
+
+            await updateDoc(
+                doc(db, "friendRequest", requestSnap.docs[0].id),
+                { status: "rejected" }
             );
 
             console.log("✅ Friend request rejected");
-
+            goBack();
         } catch (error) {
             console.log("❌ Error rejecting request:", error);
         }
@@ -266,9 +263,6 @@ const FriendDetails: React.FC<Props> = ({ route }) => {
 
 export default FriendDetails;
 
-// =========================================================
-// 🎨 STYLES
-// =========================================================
 const styles = StyleSheet.create({
     image: {
         width: responsiveWidth(40),

@@ -1,64 +1,86 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet } from 'react-native'
 import React, { useEffect } from 'react'
-import { collection, getDocs, onSnapshot } from 'firebase/firestore';
-import { db, usersRef } from '../../../../firebase/firebaseConfig';
+import { query, where, onSnapshot, getDocs } from 'firebase/firestore';
+import { usersRef, friendsListRef } from '../../../../firebase/firebaseConfig';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store/Store';
 import { Components } from '../../../components';
 import { navigate } from '../../../utils/NavigationUtils';
+import { IS_FROM } from '../../../constants/enums/Enums';
+
+/**
+ * ✅ FIRESTORE COLLECTIONS (matches firebaseConfig.ts exports):
+ *
+ *  friendsList  (friendsListRef)  ← collection(db, "friendsList")
+ *   └── {docId}
+ *         users:     [userId1, userId2]
+ *         createdAt: Timestamp
+ *
+ *  users  (usersRef)              ← collection(db, "users")
+ *   └── {userId}
+ *         uid:      string
+ *         name:     string
+ *         email:    string
+ *         photoURL: string
+ *
+ * Query pattern:
+ *   friendsList where users array-contains currentUserId
+ *   → extract other uid → lookup in users collection
+ */
 
 const ChatScreen = () => {
   const userDetails = useSelector((state: RootState) => state.user?.userDetails);
-
-
   const [friends, setFriends] = React.useState<any[]>([]);
 
-  const userId = userDetails?.uid;
-
   useEffect(() => {
-    if (!userId) return;
+    if (!userDetails?.uid) return;
 
-    const unsubscribe = getFriendsList(userId, setFriends);
+    const userId = userDetails.uid;
 
-    return () => unsubscribe && unsubscribe(); // cleanup
-  }, [userId]);
+    // ✅ Real-time listener: all friendsList docs that include me
+    const unsubscribe = onSnapshot(
+      query(friendsListRef, where("users", "array-contains", userId)),
+      async (snapshot) => {
+        // Extract the OTHER person's uid from each doc
+        const friendIds = snapshot.docs
+          .map(doc => {
+            const users: string[] = doc.data().users || [];
+            return users.find((uid: string) => uid !== userId);
+          })
+          .filter(Boolean) as string[];
 
+        if (friendIds.length === 0) {
+          setFriends([]);
+          return;
+        }
 
-  const getFriendsList = (userId: string, callback: (data: any[]) => void) => {
-    try {
-      const friendsRef = collection(db, "friendList", userId, "friends");
+        // Fetch all user profiles, then filter to only friends
+        // (Firestore "in" limited to 30 — getDocs + client filter is fine here)
+        const usersSnapshot = await getDocs(usersRef);
+        const friendProfiles = usersSnapshot.docs
+          .filter(doc => friendIds.includes(doc.data().uid))
+          .map(doc => ({ id: doc.id, ...doc.data() }));
 
-      // 🔥 Real-time listener
-      return onSnapshot(friendsRef, (snapshot) => {
-        const friends: any[] = [];
+        setFriends(friendProfiles);
+      }
+    );
 
-        snapshot.forEach((doc) => {
-          friends.push({
-            id: doc.id, // friend uid
-            ...doc.data(),
-          });
-        });
+    return () => unsubscribe();
+  }, [userDetails?.uid]);
 
-        console.log("✅ Friends List:", friends);
-        callback(friends);
-      });
-
-    } catch (error) {
-      console.log("❌ Error fetching friends:", error);
-    }
-  };
   const onPressUser = (user: any) => {
     navigate("MessageScreen", { user });
-  }
+  };
+
   return (
     <Components.Background>
       <Components.SafeAreaContainer>
-        <Components.UsersList users={friends} onPressUser={onPressUser} />
+        <Components.UsersList users={friends} onPressUser={onPressUser} isFrom={IS_FROM.CHAT_SCREEN} />
       </Components.SafeAreaContainer>
     </Components.Background>
-  )
-}
+  );
+};
 
-export default ChatScreen
+export default ChatScreen;
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({});

@@ -7,16 +7,17 @@ import {
     Image,
     TouchableOpacity,
 } from "react-native";
-import {Components} from "../../index.ts";
+import { Components } from "../../index.ts";
 import GetImage from "../../getImage";
 import { IS_FROM } from "../../../constants/enums/Enums.ts";
 
 interface User {
     id: string;
-    name: string;
-    email: string;
-    profile_pic?: string;
+    senderName: string;
+    senderEmail: string;
+    senderProfilePic?: string;
     uid: string;
+    IS_FROM: IS_FROM;
 }
 
 interface Props {
@@ -25,46 +26,50 @@ interface Props {
 }
 
 const FriendRequestList: React.FC<Props> = ({ friendList, onPressUser }) => {
+
+
+
     const renderItem = ({ item }: { item: User }) => {
-   
+        console.log("item ===", item);
         return (
             <TouchableOpacity
                 style={styles.itemContainer}
-                onPress={() => onPressUser?.(item ,IS_FROM.FRIEND_REQUEST)}
+                onPress={() => onPressUser?.(item, IS_FROM.FRIEND_REQUEST)}
             >
 
 
-                    <GetImage source={  item.profile_pic || '' } style={styles.avatar} />
+                <GetImage source={item.senderProfilePic
+                    || ''} style={styles.avatar} />
 
 
                 {/* User Info */}
                 <View style={styles.infoContainer}>
-                    <Text style={styles.name}>{item.name}</Text>
-                    <Text style={styles.email}>{item.email}</Text>
+                    <Text style={styles.name}>{item.senderName}</Text>
+                    <Text style={styles.email}>{item.senderEmail}</Text>
                 </View>
             </TouchableOpacity>
         );
     };
 
     const ListHeader = () => (
-        <View style={{  marginBottom: 16,  }}>
+        <View style={{ marginBottom: 16, }}>
             <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-                Friend Requests <Text style={{color:'red'}} >{friendList.length}</Text>
+                Friend Requests <Text style={{ color: 'red' }} >{friendList.length}</Text>
             </Text>
         </View>
     );
     return (
-        <View style={{ }} >
-        <FlatList
-            data={friendList}
-            keyExtractor={(item) => item.id}
-            renderItem={renderItem}
-            ListHeaderComponent={ListHeader}
-            contentContainerStyle={styles.list}
-            showsVerticalScrollIndicator={false}
-            scrollEnabled={false}
-            
-        />
+        <View style={{}} >
+            <FlatList
+                data={friendList}
+                keyExtractor={(item) => item.id}
+                renderItem={renderItem}
+                ListHeaderComponent={ListHeader}
+                contentContainerStyle={styles.list}
+                showsVerticalScrollIndicator={false}
+                scrollEnabled={false}
+
+            />
         </View>
     );
 };
@@ -87,7 +92,7 @@ const styles = StyleSheet.create({
         width: 50,
         height: 50,
         borderRadius: 25,
-        overflow:'hidden'
+        overflow: 'hidden'
     },
     avatarPlaceholder: {
         width: 50,

@@ -63,29 +63,36 @@ const GetImage: React.FC<GetImageProps> = ({
       <Rect x="0" y="0" rx="5" ry="5" width="100%" height="100%" />
     </ContentLoader>
   );
-
+  const isValidSource = source.trim() !== '';
   return (
     <View style={style}>
-      <FastImage
-        {...props}
-        source={
-          isLocal
-            ? source
-            : {
+      {isValidSource ? (
+        <FastImage
+          {...props}
+          source={
+            isLocal
+              ? source
+              : {
                 uri: source,
                 headers: { Accept: '*/*' },
                 priority: FastImage.priority.high,
                 cache: FastImage.cacheControl.web,
               }
-        }
-        style={{ flex: 1 }}
-        onLoadStart={onLoadStart}
-        onLoadEnd={onLoadEnd}
-        onError={onError}
-        resizeMode={getResizeMode(resizeMode)}
-      />
+          }
+          style={{ flex: 1 }}
+          onLoadStart={onLoadStart}
+          onLoadEnd={onLoadEnd}
+          onError={onError}
+          resizeMode={getResizeMode(resizeMode)}
+        />
+      ) : (
+        <Image
+          source={Images.DEFAULT_IMAGE}
+          style={style as StyleProp<ImageStyle>}
+        />
+      )}
 
-      {isLoading && <Loader style={style} />}
+      {isValidSource && isLoading && <Loader />}
 
       {error && (
         <Image

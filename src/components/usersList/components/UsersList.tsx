@@ -7,7 +7,7 @@ import {
     Image,
     TouchableOpacity,
 } from "react-native";
-import {Components} from "../../index.ts";
+import { Components } from "../../index.ts";
 import GetImage from "../../getImage";
 import { IS_FROM } from "../../../constants/enums/Enums.ts";
 
@@ -22,11 +22,12 @@ interface User {
 interface Props {
     users: User[];
     onPressUser?: (user: User) => void;
+    isFrom?: IS_FROM;
 }
 
-const UsersList: React.FC<Props> = ({ users, onPressUser }) => {
+const UsersList: React.FC<Props> = ({ users, onPressUser, isFrom }) => {
     const renderItem = ({ item }: { item: User }) => {
-    
+
         return (
             <TouchableOpacity
                 style={styles.itemContainer}
@@ -34,7 +35,7 @@ const UsersList: React.FC<Props> = ({ users, onPressUser }) => {
             >
 
 
-                    <GetImage source={  item.profile_pic || '' } style={styles.avatar} />
+                <GetImage source={item.profile_pic || ''} style={styles.avatar} />
 
 
                 {/* User Info */}
@@ -46,21 +47,21 @@ const UsersList: React.FC<Props> = ({ users, onPressUser }) => {
         );
     };
     const ListHeader = () => (
-        <View style={{  marginBottom: 16,  }}>
+        <View style={{ marginBottom: 16, }}>
             <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-                People you may know 
+                People you may know
             </Text>
         </View>
     );
     return (
         <FlatList
             data={users}
-             ListHeaderComponent={ListHeader}
+            ListHeaderComponent={isFrom === IS_FROM.CHAT_SCREEN ? null : ListHeader}
             keyExtractor={(item) => item.id}
             renderItem={renderItem}
             contentContainerStyle={styles.list}
             showsVerticalScrollIndicator={false}
-             scrollEnabled={false}
+            scrollEnabled={false}
         />
     );
 };
@@ -83,7 +84,7 @@ const styles = StyleSheet.create({
         width: 50,
         height: 50,
         borderRadius: 25,
-        overflow:'hidden'
+        overflow: 'hidden'
     },
     avatarPlaceholder: {
         width: 50,
