@@ -3,27 +3,35 @@ import {
     View,
     Text,
     StyleSheet,
-    Image,
     TouchableOpacity,
-
 } from "react-native";
+
 import { Components } from "../../../components";
 import { responsiveHeight, responsiveWidth } from "react-native-responsive-dimensions";
 import { Colors } from "../../../constants";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store/Store";
-import { addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, setDoc, Timestamp } from "firebase/firestore";
-import { db, friendRequestRef } from "../../../../firebase/firebaseConfig";
+
+import {
+    doc,
+    deleteDoc,
+    setDoc,
+    Timestamp,
+} from "firebase/firestore";
+
+import { db } from "../../../../firebase/firebaseConfig";
 import { IS_FROM } from "../../../constants/enums/Enums";
 import { checkErrorMessage } from "../../../helpers/errorHandler/checkErrorMessage";
 import { goBack } from "../../../utils/NavigationUtils";
+
 interface User {
-    id: string;
+    id?: string; // optional (don't use this)
     name: string;
     email: string;
     profile_pic?: string;
-    uid: string;
+    uid: string; // ✅ always use this
     about?: string;
+    request_sender_id?: string;
 }
 
 interface Props {
@@ -31,153 +39,184 @@ interface Props {
         params: {
             user: User;
             isFrom: IS_FROM;
+            getFriendRequestList: () => void;
         };
     };
 }
 
 const FriendDetails: React.FC<Props> = ({ route }) => {
-    const { user,isFrom } = route.params;
- 
- const userDetails = useSelector((state: RootState) => state.user?.userDetails);
+    const { user, isFrom, getFriendRequestList } = route.params;
 
+    const userDetails = useSelector((state: RootState) => state.user?.userDetails);
 
- 
-const addUserToFriends = async (data: User) => {
-  try {
-    console.log('User details', userDetails);
+    // =========================================================
+    // ✅ SEND FRIEND REQUEST
+    // =========================================================
+    const addUserToFriends = async (data: User) => {
+        try {
+            if (!userDetails?.uid) return;
 
-    if (!userDetails?.uid) {
-      console.log('User not logged in');
-      return;
-    }
+            const senderId = userDetails.uid;
+            const receiverId = data.uid;
 
-    const friendRequest = {
-      name: userDetails.name,
-      email: userDetails.email,
-      profile_pic: userDetails.profile_pic,
-      request_sender_id: userDetails.uid, // sender
-      request_receiver_id: user.uid, // receiver
-      createdAt: Timestamp.now(),
-    };
+            const friendRequest = {
+                name: userDetails.name,
+                email: userDetails.email,
+                profile_pic: userDetails.profile_pic || "",
+                request_sender_id: senderId,
+                request_receiver_id: receiverId,
+                createdAt: Timestamp.now(),
+            };
 
-    console.log('Friend request', friendRequest);
+            /**
+             * 🔥 STRUCTURE:
+             * friendRequests
+             *   └── receiverId
+             *         └── requestList
+             *               └── senderId (DOC ID)
+             */
 
-    // Reference: friendRequest/{receiverUid}/requestList
-    const docRef = doc(db, 'friendRequest', data.uid);
-   
+            await setDoc(
+                doc(db, "friendRequests", receiverId, "requestList", senderId),
+                friendRequest
+            );
 
-    // Add document
-    await addDoc(friendRequestRef, friendRequest);
-
-    console.log('Friend request sent successfully');
-  } catch (error) {
-    console.log('Error sending friend request:', error);
-  }
-};
-
- const acceptFriendRequest = async (data: User) => {
-
-    console.log('Accepting friend request from:', data);
-  try {
-    if (!userDetails?.uid) {
-      console.log('❌ current user uid missing');
-      return;
-    }
-
-    if (!data?.id) {
-      console.log('❌ other user uid missing', data);
-      return;
-    }
-
-    const currentUserId = userDetails.uid;
-    const otherUserId = data.id;
-
-    console.log('✅ currentUserId:', currentUserId);
-    console.log('✅ otherUserId:', otherUserId);
-
-    const user1 = {
-      name: userDetails?.name || '',
-      email: userDetails?.email || '',
-      profile_pic: userDetails?.profile_pic || '',
-      uid: currentUserId,
-      createdAt: Timestamp.now(),
-    };
-
-    const user2 = {
-      name: data?.name || '',
-      email: data?.email || '',
-      profile_pic: data?.profile_pic || '',
-      uid: otherUserId,
-      createdAt: Timestamp.now(),
-    };
-
-    console.log('✅ user1 (current user):', user1);
-    console.log('✅ user2 (other user):', user2);
-
-    // ✅ Add both sides
-    await setDoc(
-      doc(db, 'friendList', currentUserId, 'friends', otherUserId),
-      user2
-    );
-
-    await setDoc(
-      doc(db, 'friendList', otherUserId, 'friends', currentUserId),
-      user1
-    );
-  
-
-    console.log('✅ Friend request accepted');
-    removeAcceptedUserFromFriendRequest(currentUserId, otherUserId);
-  } catch (error) {
-    console.log('❌ Error accepting friend request:', error);
-    checkErrorMessage(error);
-  }
-};
-
- const removeAcceptedUserFromFriendRequest = async (currentUserId: string, otherUserId: string) => {
-    try {
-          // 🔹 OPTIONAL: remove friend request
-    await deleteDoc(
-      doc(db, 'friendRequests', currentUserId, 'requestList', otherUserId)
-    );
-    goBack()
-    } catch (error) {
-        console.log('❌ Error removing friend request:', error);
-    }
-      }
-
-const rejectFriendRequest = async (data: User) => {
-    try {
-        if (!userDetails?.uid) {
-            console.log('User not logged in');
-            return;
+            console.log("✅ Friend request sent");
+        } catch (error) {
+            console.log("❌ Error sending request:", error);
         }
+    };
 
-        const currentUserId = userDetails.uid;
-        const otherUserId = data.id;
+    // =========================================================
+    // ✅ ACCEPT FRIEND REQUEST
+    // =========================================================
+    const acceptFriendRequest = async (data: User) => {
 
-        // Remove the friend request document
-        await deleteDoc(
-            doc(db, 'friendRequests', currentUserId, 'requestList', otherUserId)
-        );
+        console.log('Data:', data)
 
-        console.log('Friend request rejected successfully');
-    } catch (error) {
-        console.log('Error rejecting friend request:', error);
-    }
-}
 
+        try {
+            if (!userDetails?.uid) return;
+
+            const currentUserId = userDetails.uid;
+            const otherUserId = data?.id; // ✅ FIXED (was data.id ❌)
+
+            /**
+             * 🔥 Create friend object for both users
+             */
+            const currentUserData = {
+                name: userDetails.name || "",
+                email: userDetails.email || "",
+                profile_pic: userDetails.profile_pic || "",
+                uid: currentUserId,
+                createdAt: Timestamp.now(),
+            };
+
+            const otherUserData = {
+                name: data.name || "",
+                email: data.email || "",
+                profile_pic: data.profile_pic || "",
+                uid: otherUserId,
+                createdAt: Timestamp.now(),
+            };
+            console.log("DEBUG IDS:", {
+                currentUserId,
+                otherUserId,
+                data
+            });
+            /**
+             * 🔥 STRUCTURE:
+             * friendList
+             *   └── userId
+             *         └── friends
+             *               └── friendId
+             */
+
+            // Add friend to current user
+            await setDoc(
+                doc(db, "friendList", currentUserId, "friends", otherUserId),
+                otherUserData
+            );
+
+            // Add current user to other user
+            await setDoc(
+                doc(db, "friendList", otherUserId, "friends", currentUserId),
+                currentUserData
+            );
+
+            console.log("✅ Friend added successfully");
+
+            // 🔥 Remove request after accepting
+            await removeAcceptedUserFromFriendRequest(currentUserId, otherUserId);
+
+        } catch (error) {
+            console.log("❌ Error accepting request:", error);
+            checkErrorMessage(error);
+        }
+    };
+
+    // =========================================================
+    // ✅ REMOVE REQUEST (AFTER ACCEPT / REJECT)
+    // =========================================================
+    const removeAcceptedUserFromFriendRequest = async (
+        currentUserId: string,
+        otherUserId: string
+    ) => {
+        try {
+            /**
+             * 🔥 Same path used during creation
+             */
+            await deleteDoc(
+                doc(db, "friendRequests", currentUserId, "requestList", otherUserId)
+            );
+
+            console.log("✅ Friend request removed");
+
+            getFriendRequestList?.();
+            goBack();
+
+        } catch (error) {
+            console.log("❌ Error removing request:", error);
+        }
+    };
+
+
+
+
+    // =========================================================
+    // ❌ REJECT REQUEST
+    // =========================================================
+    const rejectFriendRequest = async (data: User) => {
+        try {
+            if (!userDetails?.uid) return;
+
+            const currentUserId = userDetails.uid;
+            const otherUserId = data.uid;
+
+            await deleteDoc(
+                doc(db, "friendRequests", currentUserId, "requestList", otherUserId)
+            );
+
+            console.log("✅ Friend request rejected");
+
+        } catch (error) {
+            console.log("❌ Error rejecting request:", error);
+        }
+    };
 
     return (
-        <Components.SafeAreaContainer
-        >
+        <Components.SafeAreaContainer>
             <Components.Header />
             <Components.SizedBox verticalSpace={4} />
+
             {/* Profile Image */}
             <View style={styles.imageContainer}>
-                <Components.GetImage source={user?.profile_pic || ""} style={styles.image} resizeMode="cover" />
+                <Components.GetImage
+                    source={user?.profile_pic || ""}
+                    style={styles.image}
+                    resizeMode="cover"
+                />
             </View>
-
 
             {/* Details */}
             <View style={styles.detailsContainer}>
@@ -190,55 +229,52 @@ const rejectFriendRequest = async (data: User) => {
                         {user.about || "No details available"}
                     </Text>
                 </View>
-
             </View>
 
+            {/* ACTION BUTTONS */}
+            {isFrom !== IS_FROM.FRIEND_REQUEST ? (
+                <Components.RtlContainer style={{ paddingHorizontal: 8 }}>
+                    <TouchableOpacity
+                        onPress={() => addUserToFriends(user)}
+                        style={styles.button}
+                    >
+                        <Text style={styles.buttonText}>Add Friend</Text>
+                    </TouchableOpacity>
+                </Components.RtlContainer>
+            ) : (
+                <Components.RtlContainer style={{ paddingHorizontal: 8 }}>
+                    <TouchableOpacity
+                        onPress={() => acceptFriendRequest(user)}
+                        style={styles.button}
+                    >
+                        <Text style={styles.buttonText}>Accept</Text>
+                    </TouchableOpacity>
 
+                    <Components.SizedBox horizontalSpace={4} />
 
-{isFrom !== IS_FROM.FRIEND_REQUEST ?
-            <Components.RtlContainer style={{paddingHorizontal:8}}  >
-                <TouchableOpacity onPress={() => addUserToFriends(user)} style={styles.button}>
-                    <Text style={styles.buttonText}>Add Friend</Text>
-                </TouchableOpacity>
-                <Components.SizedBox horizontalSpace={4} />
-                <TouchableOpacity style={styles.button}>
-                    <Text style={styles.buttonText}>Block</Text>
-                </TouchableOpacity>
-            </Components.RtlContainer>
-            :
-               <Components.RtlContainer style={{paddingHorizontal:8}}  >
-                <TouchableOpacity onPress={() => acceptFriendRequest(user)} style={styles.button}>
-                    <Text style={styles.buttonText}>Accept</Text>
-                </TouchableOpacity>
-                <Components.SizedBox horizontalSpace={4} />
-                <TouchableOpacity style={styles.button}>
-                    <Text style={styles.buttonText}>Reject</Text>
-                </TouchableOpacity>
-            </Components.RtlContainer>
-        
-        
-        
-        }
-
-
-
-
+                    <TouchableOpacity
+                        onPress={() => rejectFriendRequest(user)}
+                        style={[styles.button, { backgroundColor: "red" }]}
+                    >
+                        <Text style={styles.buttonText}>Reject</Text>
+                    </TouchableOpacity>
+                </Components.RtlContainer>
+            )}
         </Components.SafeAreaContainer>
     );
 };
 
 export default FriendDetails;
 
+// =========================================================
+// 🎨 STYLES
+// =========================================================
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#fff",
-    },
     image: {
         width: responsiveWidth(40),
         height: responsiveWidth(40),
-
-    }, imageContainer: {
+    },
+    imageContainer: {
         width: responsiveWidth(40),
         height: responsiveWidth(40),
         borderRadius: responsiveWidth(60),
@@ -246,18 +282,6 @@ const styles = StyleSheet.create({
         borderWidth: 3,
         borderColor: "#6200ee",
         alignSelf: "center",
-    },
-    placeholder: {
-        width: "100%",
-        height: 250,
-        backgroundColor: "#6200ee",
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    placeholderText: {
-        fontSize: 50,
-        color: "#fff",
-        fontWeight: "bold",
     },
     detailsContainer: {
         padding: 20,
@@ -288,7 +312,7 @@ const styles = StyleSheet.create({
         padding: 12,
         borderRadius: 8,
         marginTop: 20,
-        flex: 1
+        flex: 1,
     },
     buttonText: {
         color: "#fff",

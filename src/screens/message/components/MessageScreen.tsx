@@ -61,22 +61,22 @@ const MessageScreen: React.FC<Props> = ({ route }) => {
 
   useEffect(() => {
     createRoomIfNotExist();
-let roomId = Helper.getRoomId(userDetails.uid, user.uid);
- const docRef = doc(db, 'rooms', roomId);
- const messageRef = collection(docRef, 'messages');
- const q = query(messageRef, orderBy('createdAt', 'asc'));
-let unsub = onSnapshot(q, (snapshot) => {
-   let allMessages = snapshot.docs.map((doc) => doc.data());
-   setMessages([...allMessages  ]);
-});
+    let roomId = Helper.getRoomId(userDetails.uid, user.uid);
+    const docRef = doc(db, 'rooms', roomId);
+    const messageRef = collection(docRef, 'messages');
+    const q = query(messageRef, orderBy('createdAt', 'asc'));
+    let unsub = onSnapshot(q, (snapshot) => {
+      let allMessages = snapshot.docs.map((doc) => doc.data());
+      setMessages([...allMessages]);
+    });
 
-return () => unsub 
-  }, [ ]);
+    return () => unsub
+  }, []);
 
 
 
-    // ✅ Create room
-  const createRoomIfNotExist =  async () => {
+  // ✅ Create room
+  const createRoomIfNotExist = async () => {
     if (!userDetails?.uid || !user?.uid) return;
 
     let roomId = Helper.getRoomId(userDetails.uid, user.uid);
@@ -89,7 +89,7 @@ return () => unsub
       },
       { merge: true } // ✅ important fix
     );
-  } 
+  }
   // ✅ Better auto scroll
   const scrollToBottom = () => {
     flatListRef.current?.scrollToEnd({ animated: true });
@@ -98,28 +98,28 @@ return () => unsub
   const sendMessage = async () => {
     if (!textRef.current.trim()) return;
 
-  try {
- let roomId = Helper.getRoomId(userDetails.uid, user.uid);
+    try {
+      let roomId = Helper.getRoomId(userDetails.uid, user.uid);
 
-const docRef = doc(db, 'rooms', roomId);
-const messageRef =collection(docRef, 'messages');
-const newDoc  = await addDoc(messageRef, {
-  text: textRef.current,
- 
-  createdAt: Timestamp.now(),
-  userId : userDetails.uid,
-  profile_pic : userDetails.profile_pic || '',
-  senderName : userDetails.name
-});
-  textRef.current = '';  
-if(inputRef.current) {
-  inputRef.current.clear();
-}
+      const docRef = doc(db, 'rooms', roomId);
+      const messageRef = collection(docRef, 'messages');
+      const newDoc = await addDoc(messageRef, {
+        text: textRef.current,
+
+        createdAt: Timestamp.now(),
+        userId: userDetails.uid,
+        profile_pic: userDetails.profile_pic || '',
+        senderName: userDetails.name
+      });
+      textRef.current = '';
+      if (inputRef.current) {
+        inputRef.current.clear();
+      }
 
 
-  } catch (error) {
-    console.log('Error sending message:', error);
-  }
+    } catch (error) {
+      console.log('Error sending message:', error);
+    }
   };
 
   const renderItem = ({ item }: { item: Message }) => {
@@ -169,8 +169,8 @@ if(inputRef.current) {
           {/* Input */}
           <View style={styles.inputContainer}>
             <TextInput
-            ref={inputRef}
-             
+              ref={inputRef}
+
               onChangeText={text => (textRef.current = text)}
               placeholder="Type a message..."
               style={styles.input}
