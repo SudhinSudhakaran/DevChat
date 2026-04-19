@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
-import {goBack} from "../../../utils/NavigationUtils.tsx";
+import { goBack } from "../../../utils/NavigationUtils.tsx";
 import { Colors } from "../../../constants/index.ts";
 
 interface Props {
@@ -17,11 +17,11 @@ interface Props {
     rightComponent?: React.ReactNode;
 }
 
-const  Header: React.FC<Props> = ({
-                                           title = "",
-                                           showBack = true,
-                                           rightComponent,
-                                       }) => {
+const Header: React.FC<Props> = ({
+    title = "",
+    showBack = true,
+    rightComponent,
+}) => {
     const navigation = useNavigation<any>();
 
     return (
@@ -31,8 +31,8 @@ const  Header: React.FC<Props> = ({
             {/* Left (Back Button) */}
             <View style={styles.left}>
                 {showBack && (
-                    <TouchableOpacity onPress={() =>  goBack()}>
-                        <Ionicons name="arrow-back" size={24} color="#fff" />
+                    <TouchableOpacity onPress={() => goBack()}>
+                        <Ionicons name="arrow-back" size={24} color={Colors.PRIMARY_COLOR} />
                     </TouchableOpacity>
                 )}
             </View>
@@ -48,7 +48,7 @@ const  Header: React.FC<Props> = ({
     );
 };
 
-export default  Header;
+export default Header;
 
 const styles = StyleSheet.create({
     container: {
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         paddingHorizontal: 12,
-        backgroundColor: Colors.PRIMARY_COLOR,
+
     },
     left: {
         width: 40,

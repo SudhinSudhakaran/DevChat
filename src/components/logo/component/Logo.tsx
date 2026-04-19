@@ -9,25 +9,26 @@ import LottieView from 'lottie-react-native';
 
 interface LogoProps {
   animationStyle?: StyleProp<ViewStyle>;
+  containerStyle?: StyleProp<ViewStyle>;
 }
 
-const Logo: FC<LogoProps> = ({ animationStyle }) => {
+const Logo: FC<LogoProps> = ({ containerStyle, animationStyle }) => {
   return (
-    <View style={styles.logoContainer}>
-      <LottieView
-        source={Animations.LOGO_ANIMATION}
-        autoPlay
-        loop
-        style={[
-          {
-            width: responsiveScreenWidth(70),
-            height: responsiveScreenWidth(70),
-          },
-          animationStyle,
-        ]}
-      />
-
-      <Text style={styles.appName}>DevChat</Text>
+    <View style={styles.glowWrapper}>
+      <View style={styles.logoWrapper}>
+        <LottieView
+          source={Animations.LOGO_ANIMATION}
+          autoPlay
+          loop
+          style={[
+            {
+              width: responsiveScreenWidth(70),
+              height: responsiveScreenWidth(70),
+            },
+            animationStyle,
+          ]}
+        />
+      </View>
     </View>
   );
 };
@@ -40,11 +41,25 @@ const styles = StyleSheet.create({
     height: responsiveScreenHeight(30),
     justifyContent: 'center',
     alignItems: 'center',
+
   },
   appName: {
     color: Colors.WHITE_COLOR,
     fontSize: responsiveScreenWidth(10),
     fontWeight: 'bold',
     alignSelf: 'center',
+  },
+  logoWrapper: {
+    padding: 4,
+    borderRadius: 100,
+
+    shadowColor: "#22C55E",
+    shadowOpacity: 0.6,
+    shadowRadius: 10,
+    elevation: 2,
+    width: responsiveScreenWidth(40),
+    height: responsiveScreenWidth(40),
+    borderWidth: 2,
+    borderColor: "#22C55E",
   },
 });

@@ -10,6 +10,7 @@ import {
 import { Components } from "../../index.ts";
 import GetImage from "../../getImage";
 import { IS_FROM } from "../../../constants/enums/Enums.ts";
+import { Colors } from "../../../constants/index.ts";
 
 interface User {
     id: string;
@@ -53,7 +54,7 @@ const FriendRequestList: React.FC<Props> = ({ friendList, onPressUser }) => {
 
     const ListHeader = () => (
         <View style={{ marginBottom: 16, }}>
-            <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+            <Text style={{ fontSize: 18, fontWeight: "bold", color: Colors.ACTIVE_COLOR }}>
                 Friend Requests <Text style={{ color: 'red' }} >{friendList.length}</Text>
             </Text>
         </View>

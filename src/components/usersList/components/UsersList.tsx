@@ -10,6 +10,7 @@ import {
 import { Components } from "../../index.ts";
 import GetImage from "../../getImage";
 import { IS_FROM } from "../../../constants/enums/Enums.ts";
+import { Colors } from "../../../constants/index.ts";
 
 interface User {
     id: string;
@@ -48,7 +49,7 @@ const UsersList: React.FC<Props> = ({ users, onPressUser, isFrom }) => {
     };
     const ListHeader = () => (
         <View style={{ marginBottom: 16, }}>
-            <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+            <Text style={{ fontSize: 18, fontWeight: "bold", color: Colors.ACTIVE_COLOR }}>
                 People you may know
             </Text>
         </View>

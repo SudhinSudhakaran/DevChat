@@ -1,7 +1,7 @@
- 
 
 
-import { Keyboard, StyleSheet, Text, View } from 'react-native'
+
+import { Keyboard, StatusBar, StyleSheet, Text, View } from 'react-native'
 import React, { useState } from 'react'
 import { Components } from '../../../components'
 import styles from '../../login/components/LoginScreen.styles'
@@ -12,15 +12,15 @@ import { useEncrypt } from '../../../hooks/useEncrypt'
 import { Helper } from '../../../helpers/helper/Helper'
 import { goBack, navigate, resetAndNavigate } from '../../../utils/NavigationUtils'
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import {doc ,setDoc, getDoc} from "firebase/firestore";
- import { auth, db } from '../../../../firebase/firebaseConfig';
+import { doc, setDoc, getDoc } from "firebase/firestore";
+import { auth, db } from '../../../../firebase/firebaseConfig';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { setIsUserIsLoggedIn, setUserDetails } from '../../../redux/slices/useDetails/userSlice'
 import { useDispatch } from 'react-redux'
 import { checkErrorMessage } from '../../../helpers/errorHandler/checkErrorMessage'
 const SignUpScreen = () => {
-  const dispatch = useDispatch(); 
-const [isLoading, setIsLoading] = useState(false)
+  const dispatch = useDispatch();
+  const [isLoading, setIsLoading] = useState(false)
   const [inputs, setInputs] = useState({
     name: "",
     email: "",
@@ -33,7 +33,7 @@ const [isLoading, setIsLoading] = useState(false)
     password: "",
     confirmPassword: "",
   });
- 
+
 
   const handleOnchange = (text: string, input: string) => {
     setInputs((prevState) => ({ ...prevState, [input]: text }));
@@ -108,122 +108,132 @@ const [isLoading, setIsLoading] = useState(false)
 
   const handleSignUp = async (data: any) => {
     console.log(data);
-  try {
-    
+    try {
+
 
 
       const response = await createUserWithEmailAndPassword(auth, data.email, data.password);
-  
-  console.log("User signed up successfully:", response.user);
-let _user = {
-  name: data.name,
-  email: data.email,
-  profile_pic: "",
-  uid: response.user.uid,
 
-}
-  await setDoc(doc(db, "users", response.user.uid), _user);
- 
-dispatch(setUserDetails({
-  ..._user,
-  email: data.email,
-  password: data.password,
-}));
+      console.log("User signed up successfully:", response.user);
+      let _user = {
+        name: data.name,
+        email: data.email,
+        profile_pic: "",
+        uid: response.user.uid,
 
-dispatch(setIsUserIsLoggedIn(true));
- resetAndNavigate('HomeStack');
-  
+      }
+      await setDoc(doc(db, "users", response.user.uid), _user);
+
+      dispatch(setUserDetails({
+        ..._user,
+        email: data.email,
+        password: data.password,
+      }));
+
+      dispatch(setIsUserIsLoggedIn(true));
+      resetAndNavigate('HomeStack');
+
     } catch (error) {
-    console.log("Error signing up:", error);
-     checkErrorMessage(error);
-  }
+      console.log("Error signing up:", error);
+      checkErrorMessage(error);
+    }
   };
 
- 
 
-return (
-  <Components.Background>
-   
-    <KeyboardAwareScrollView
-      showsVerticalScrollIndicator={false}
-      keyboardShouldPersistTaps="handled"
-      enableOnAndroid={true}
-      extraScrollHeight={20}
-      contentContainerStyle={{ flexGrow: 1 }}
-    >
-    <Components.SafeAreaContainer>
-      <Components.Header />
- 
 
-      <Components.Logo
-        animationStyle={{
-          width: responsiveWidth(50),
-          height: responsiveWidth(50),
-        }}
-      />
+  return (
+    <View style={styles.container}>
+      <StatusBar backgroundColor="#0F172A" barStyle="light-content" />
 
-      <View style={{...styles.formContainer, height: responsiveHeight(60),}}>
-        <Components.SizedBox verticalSpace={1} /> 
-        <Components.InputField
-          label={I18n.t("Name")}
-          placeholder={I18n.t("Name")}
-          onChangeText={(text) => handleOnchange(text, "name")}
-          error={errors.name}
-          onFocus={() => handleError(null, "name")}
-          keyboardType="default"   // ✅ FIXED (was email-address)
-          autoCapitalize="none"
-          value={inputs.name}
-          isPassword={false}
-        />
+      <Components.SafeAreaContainer>
+        <KeyboardAwareScrollView
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          enableOnAndroid={true}
+          extraScrollHeight={20}
+          contentContainerStyle={{ flexGrow: 1 }}
+        >
 
-        <Components.InputField
-          label={I18n.t("Email")}
-          placeholder={I18n.t("Enter_Your_Email")}
-          onChangeText={(text) => handleOnchange(text, "email")}
-          error={errors.email}
-          onFocus={() => handleError(null, "email")}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          value={inputs.email}
-          isPassword={false}
-        />
+          <Components.Header />
 
-        <Components.InputField
-          label={I18n.t("Password")}
-          placeholder={". . . . . . . ."}
-          isPassword={true}
-          onChangeText={(text) => handleOnchange(text, "password")}
-          error={errors?.password}
-          onFocus={() => handleError(null, "password")}
-          value={inputs.password}
-        />
 
-        <Components.InputField
-          label={I18n.t("Confirm_Password")}
-          placeholder={". . . . . . . ."}
-          isPassword={true}
-          onChangeText={(text) => handleOnchange(text, "confirmPassword")}
-          error={errors.confirmPassword}
-          onFocus={() => handleError(null, "confirmPassword")}
-          value={inputs.confirmPassword}
-        />
+          {/* LOGO */}
+          <Components.Logo
+            animationStyle={{
+              width: responsiveWidth(40),
+              height: responsiveWidth(40),
+              alignSelf: "center",
+            }}
+            containerStyle={{
+              marginBottom: responsiveHeight(50),
+            }}
+          />
 
-        <Components.SizedBox verticalSpace={3} />
 
-        <Components.Button
-          buttonLabel={I18n.t("Signup_here")}
-          onPress={validation}
-          style={styles.button}
-          isLoading={isLoading}
-        />
+          {/* CARD */}
+          <View style={styles.card}>
+            <Components.SizedBox verticalSpace={1} />
+            <Components.InputField
+              label={I18n.t("Name")}
+              placeholder={I18n.t("Name")}
+              onChangeText={(text) => handleOnchange(text, "name")}
+              error={errors.name}
+              onFocus={() => handleError(null, "name")}
+              keyboardType="default"   // ✅ FIXED (was email-address)
+              autoCapitalize="none"
+              value={inputs.name}
+              isPassword={false}
+            />
 
-        <Components.SizedBox verticalSpace={7} />
-      </View>
-        </Components.SafeAreaContainer>
-    </KeyboardAwareScrollView>
-     
-  </Components.Background>
-);
+            <Components.InputField
+              label={I18n.t("Email")}
+              placeholder={I18n.t("Enter_Your_Email")}
+              onChangeText={(text) => handleOnchange(text, "email")}
+              error={errors.email}
+              onFocus={() => handleError(null, "email")}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              value={inputs.email}
+              isPassword={false}
+            />
+
+            <Components.InputField
+              label={I18n.t("Password")}
+              placeholder={". . . . . . . ."}
+              isPassword={true}
+              onChangeText={(text) => handleOnchange(text, "password")}
+              error={errors?.password}
+              onFocus={() => handleError(null, "password")}
+              value={inputs.password}
+            />
+
+            <Components.InputField
+              label={I18n.t("Confirm_Password")}
+              placeholder={". . . . . . . ."}
+              isPassword={true}
+              onChangeText={(text) => handleOnchange(text, "confirmPassword")}
+              error={errors.confirmPassword}
+              onFocus={() => handleError(null, "confirmPassword")}
+              value={inputs.confirmPassword}
+            />
+
+            <Components.SizedBox verticalSpace={3} />
+
+            <Components.Button
+              buttonLabel={I18n.t("Signup_here")}
+              onPress={validation}
+              style={styles.button}
+              isLoading={isLoading}
+            />
+
+            <Components.SizedBox verticalSpace={7} />
+          </View>
+
+
+        </KeyboardAwareScrollView >
+      </Components.SafeAreaContainer>
+    </View >
+  );
 }
 
 export default SignUpScreen

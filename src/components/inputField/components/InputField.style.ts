@@ -1,11 +1,11 @@
-import {StyleSheet} from 'react-native';
+import { StyleSheet } from 'react-native';
 import {
   responsiveScreenHeight,
   responsiveScreenWidth,
   responsiveScreenFontSize,
 } from 'react-native-responsive-dimensions';
 import { Colors, Fonts } from '../../../constants';
- 
+
 
 const styles = StyleSheet.create({
   container: {
@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
     fontSize: responsiveScreenFontSize(1.8),
     marginBottom: 3,
     fontFamily: Fonts.INTER_BOLD,
-    color: Colors.PRIMARY_TEXT_COLOR,
+    color: Colors.ACTIVE_COLOR,
   },
   inputContainer: {
     borderWidth: 1,

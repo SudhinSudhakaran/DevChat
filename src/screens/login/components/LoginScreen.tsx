@@ -1,192 +1,154 @@
-import {Keyboard, Platform, StyleSheet, Text, View} from 'react-native'
-import React, { useState } from 'react'
-import { Components } from '../../../components'
-import styles from './LoginScreen.styles'
-import { responsiveWidth } from 'react-native-responsive-dimensions'
-import { useFocusEffect } from '@react-navigation/native'
-import I18n from '../../../i18n'
-import { useEncrypt } from '../../../hooks/useEncrypt'
-import { Helper } from '../../../helpers/helper/Helper'
-import { navigate } from '../../../utils/NavigationUtils'
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  Keyboard,
+  StatusBar,
+} from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import { useFocusEffect } from "@react-navigation/native";
+import { responsiveHeight, responsiveWidth } from "react-native-responsive-dimensions";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth, db } from '../../../../firebase/firebaseConfig'
-import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import { doc, getDoc } from 'firebase/firestore'
-import { useDispatch } from 'react-redux'
-import { setIsUserIsLoggedIn, setUserDetails } from '../../../redux/slices/useDetails/userSlice'
-import Toast from 'react-native-simple-toast';
-import { checkErrorMessage } from '../../../helpers/errorHandler/checkErrorMessage'
+import { doc, getDoc } from "firebase/firestore";
+import { useDispatch } from "react-redux";
 
+import { auth, db } from "../../../../firebase/firebaseConfig";
+import { Components } from "../../../components";
+import { navigate } from "../../../utils/NavigationUtils";
+import { setIsUserIsLoggedIn, setUserDetails } from "../../../redux/slices/useDetails/userSlice";
+import { Helper } from "../../../helpers/helper/Helper";
+import { checkErrorMessage } from "../../../helpers/errorHandler/checkErrorMessage";
+import styles from "./LoginScreen.styles";
 
 const LoginScreen = () => {
- const dispatch = useDispatch()
+  const dispatch = useDispatch();
+
   const [inputs, setInputs] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({ email: "", password: "" });
+
   useFocusEffect(
     React.useCallback(() => {
       setInputs({ email: "", password: "" });
-
       setErrors({ email: "", password: "" });
-      return () => {
-        // setInputs({email: '', password: ''});
-      };
     }, [])
   );
 
   const handleOnchange = (text: string, input: string) => {
-    setInputs((prevState) => ({ ...prevState, [input]: text }));
+    setInputs(prev => ({ ...prev, [input]: text }));
   };
 
   const handleError = (error: string | null, input: string) => {
-    setErrors((prevState) => ({ ...prevState, [input]: error }));
+    setErrors(prev => ({ ...prev, [input]: error || "" }));
   };
 
   const validation = () => {
     Keyboard.dismiss();
-    let isValidEmail = 0;
-    let isValidPassword = 0;
 
-    if (Helper.isEmpty(inputs?.email)) {
-      handleError(I18n.t("Email_Cant_Empty"), "email");
+    let valid = true;
 
-      isValidEmail = 0;
-    } else if (!Helper.isValidEmail(inputs?.email)) {
-      handleError("Enter a valid email", "email");
-
-      isValidEmail = 0;
-    } else {
-      handleError("", "email");
-      isValidEmail = 1;
-    }
-    if (Helper.isEmpty(inputs?.password)) {
-      handleError(I18n.t("Password_Cant_Empty"), "password");
-      isValidPassword = 0;
-    } else if (inputs?.password?.trim().length < 6) {
-      handleError("Password must be 6 characters", "password");
-      isValidPassword = 0;
-    } else {
-      handleError("", "password");
-      isValidPassword = 1;
+    if (!Helper.isValidEmail(inputs.email)) {
+      handleError("Enter valid email", "email");
+      valid = false;
     }
 
-    if (isValidEmail === 1 && isValidPassword === 1) {
-      let data = {
-        ...inputs,
-        fbgoogle: 0,
-        encryptedEmail: useEncrypt(inputs.email),
-        encryptedPassword: useEncrypt(inputs.password),
-      };
-
-      handleLogin(data);
+    if (inputs.password.length < 6) {
+      handleError("Min 6 characters", "password");
+      valid = false;
     }
+
+    if (valid) handleLogin();
   };
 
- const handleLogin = async (data: any) => {
-  try {
-    const response = await signInWithEmailAndPassword(
-      auth,
-      data.email,
-      data.password
-    );
+  const handleLogin = async () => {
+    try {
+      const res = await signInWithEmailAndPassword(
+        auth,
+        inputs.email,
+        inputs.password
+      );
 
-    console.log("User logged in successfully:", response.user);
-    getUserDetails(response.user.uid);
+      const docRef = doc(db, "users", res.user.uid);
+      const snap = await getDoc(docRef);
 
-  } catch (error: any) {
-    console.log("Error logging in:", error);
-
-    checkErrorMessage(error);
- 
-  }
-};
-
-const getUserDetails = async(userId: string) => {
-  // TODO: Implement get user details
- 
-
-  const docRef = doc(db, "users", userId);
-  const docSnap = await getDoc(docRef);
-  if (docSnap.exists()) {
-    let data = docSnap.data();
-   dispatch(setUserDetails(data));
-   dispatch(setIsUserIsLoggedIn(true))
-   navigate("HomeStack")
-  } else {
-    console.log("No such document!");
-  }
-
-}
-
-
-
-
-
-  const signUpAction = () => {
-    navigate("SignUp")
+      if (snap.exists()) {
+        dispatch(setUserDetails(snap.data()));
+        dispatch(setIsUserIsLoggedIn(true));
+        navigate("HomeStack");
+      }
+    } catch (e: any) {
+      checkErrorMessage(e);
+    }
   };
 
   return (
-    <Components.Background>
-          <KeyboardAwareScrollView
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-            enableOnAndroid={true}
-            extraScrollHeight={20}
-            contentContainerStyle={{ flexGrow: 1 }}
-          >
-      <Components.SizedBox verticalSpace={20} />
-      <Components.Logo
-        animationStyle={{
-          width: responsiveWidth(50),
-          height: responsiveWidth(50)
-        }} />
-        <Components.SizedBox verticalSpace={2} />
-      <View style={styles.formContainer} >
-        <Components.SizedBox verticalSpace={2} />
-        <Components.InputField
-          label={I18n.t("Email")}
-          placeholder={I18n.t("Enter_Your_Email")}
-          onChangeText={(text) => handleOnchange(text, "email")}
-          error={errors.email}
-          onFocus={() => handleError(null, "email")}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          value={inputs.email}
-          isPassword={false}
-        />
-        <Components.InputField
-          label={I18n.t("Password")}
-          placeholder={". . . . . . . ."}
-          isPassword={true}
-          onChangeText={(text) => handleOnchange(text, "password")}
-          error={errors.password}
-          onFocus={() => handleError(null, "password")}
-          keyboardType="default"
-          value={inputs.password}
-        />
-        <Components.SizedBox verticalSpace={6} />
+    <View style={styles.container}>
+      <StatusBar backgroundColor="#0F172A" barStyle="light-content" />
+      <Components.SafeAreaContainer>
+        <KeyboardAwareScrollView
+          contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
+          showsVerticalScrollIndicator={false}
+        >
 
-        <Components.Button buttonLabel="Login" onPress={validation} />
-        <Components.SizedBox verticalSpace={4} />
-        <Components.RtlContainer style={styles.signUpContainer}>
-        <Components.Label label={I18n.t("Dont_have_an_account")} />
-
-          <Components.SizedBox horizontalSpace={2} />
-          <Components.Label
-            label={I18n.t("Signup_here")}
-            style={styles.signUpText}
-            onPress={signUpAction}
-          />
-
-        </Components.RtlContainer>
+          {/* LOGO */}
+          {/* <Components.Logo
+            animationStyle={{
+              width: responsiveWidth(40),
+              height: responsiveWidth(40),
+              alignSelf: "center",
+            }}
+            containerStyle={{
+              marginBottom: responsiveHeight(60),
+            }}
+          /> */}
 
 
 
-      </View>
-      </KeyboardAwareScrollView>
-    </Components.Background>
-  )
-}
+          {/* CARD */}
+          <View style={styles.card}>
 
-export default LoginScreen
+            <Text style={styles.title}>Welcome Back</Text>
+            <Text style={styles.subtitle}>Login to continue</Text>
 
+            <Components.SizedBox verticalSpace={4} />
+
+            <Components.InputField
+              label="Email"
+              placeholder="Enter your email"
+              value={inputs.email}
+              onChangeText={(t) => handleOnchange(t, "email")}
+              error={errors.email}
+              onFocus={() => handleError("", "email")}
+            />
+
+            <Components.InputField
+              label="Password"
+              placeholder="••••••••"
+              isPassword
+              value={inputs.password}
+              onChangeText={(t) => handleOnchange(t, "password")}
+              error={errors.password}
+              onFocus={() => handleError("", "password")}
+            />
+
+            <Components.SizedBox verticalSpace={5} />
+
+            <Components.Button buttonLabel="Login" onPress={validation} />
+
+            <Components.SizedBox verticalSpace={4} />
+
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>Don't have an account?</Text>
+              <Text style={styles.signup} onPress={() => navigate("SignUp")}>
+                Sign up
+              </Text>
+            </View>
+
+          </View>
+
+        </KeyboardAwareScrollView>
+      </Components.SafeAreaContainer>
+    </View >
+  );
+};
+
+export default LoginScreen;

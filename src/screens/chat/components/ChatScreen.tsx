@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import React, { useEffect } from 'react'
 import { query, where, onSnapshot, getDocs } from 'firebase/firestore';
 import { usersRef, friendsListRef } from '../../../../firebase/firebaseConfig';
@@ -75,7 +75,11 @@ const ChatScreen = () => {
   return (
     <Components.Background>
       <Components.SafeAreaContainer>
-        <Components.UsersList users={friends} onPressUser={onPressUser} isFrom={IS_FROM.CHAT_SCREEN} />
+        <View style={styles.container}>
+
+
+          <Components.UsersList users={friends} onPressUser={onPressUser} isFrom={IS_FROM.CHAT_SCREEN} />
+        </View>
       </Components.SafeAreaContainer>
     </Components.Background>
   );
@@ -83,4 +87,10 @@ const ChatScreen = () => {
 
 export default ChatScreen;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#0F172A", // dark futuristic
+
+  }
+});
