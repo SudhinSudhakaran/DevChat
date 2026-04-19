@@ -176,7 +176,7 @@ export default BottomTab;
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: "#0B1220",
+    backgroundColor: Colors.TAB_BACKGROUND_COLOR,
     height: 70,
     paddingBottom: 10,
     borderTopWidth: 0,
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
 
   iosContainer: {
     flexDirection: 'row',
-    backgroundColor: "#0B1220",
+    backgroundColor: Colors.TAB_BACKGROUND_COLOR,
     height: 80,
     paddingBottom: 15,
     borderTopWidth: 0,

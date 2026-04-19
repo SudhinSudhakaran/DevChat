@@ -76,6 +76,7 @@ const ChatScreen = () => {
     <Components.Background>
       <Components.SafeAreaContainer>
         <View style={styles.container}>
+          <Components.HomeHeader />
 
 
           <Components.UsersList users={friends} onPressUser={onPressUser} isFrom={IS_FROM.CHAT_SCREEN} />

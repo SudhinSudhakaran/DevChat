@@ -8,6 +8,7 @@ export const Colors: {
   BACKGROUND_COLOR: string;
   ACTIVE_COLOR: string;
   INACTIVE_COLOR: string;
+  TAB_BACKGROUND_COLOR: string;
 } = {
   WHITE_COLOR: "#ffffff",
   PRIMARY_COLOR: "#0dafef",
@@ -19,6 +20,6 @@ export const Colors: {
 
   ACTIVE_COLOR: "#38BDF8",   // neon blue
   INACTIVE_COLOR: "#64748B",
-
+  TAB_BACKGROUND_COLOR: "#0B1220",
 
 };

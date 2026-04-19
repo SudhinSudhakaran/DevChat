@@ -165,7 +165,7 @@ const SignUpScreen = () => {
               alignSelf: "center",
             }}
             containerStyle={{
-              marginBottom: responsiveHeight(50),
+
             }}
           />
 
@@ -226,7 +226,7 @@ const SignUpScreen = () => {
               isLoading={isLoading}
             />
 
-            <Components.SizedBox verticalSpace={7} />
+            <Components.SizedBox verticalSpace={2} />
           </View>
 
 

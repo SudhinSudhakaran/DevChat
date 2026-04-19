@@ -85,21 +85,23 @@ const LoginScreen = () => {
       <StatusBar backgroundColor="#0F172A" barStyle="light-content" />
       <Components.SafeAreaContainer>
         <KeyboardAwareScrollView
-          contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
+          contentContainerStyle={{ flexGrow: 1, }}
           showsVerticalScrollIndicator={false}
         >
-
+          <Components.SizedBox verticalSpace={5} />
           {/* LOGO */}
-          {/* <Components.Logo
+          <Components.Logo
             animationStyle={{
               width: responsiveWidth(40),
               height: responsiveWidth(40),
               alignSelf: "center",
             }}
             containerStyle={{
-              marginBottom: responsiveHeight(60),
+
+              alignSelf: "center",
+
             }}
-          /> */}
+          />
 
 
 

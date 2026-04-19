@@ -9,6 +9,8 @@ export const Fonts: {
   INTER_BOLD: string;
   POPPINS_BOLD: string;
   POPPINS_REGULAR: string;
+  ORBITRON_BOLD: string;
+  ORBITRON_EXTRABOLD: string;
 } = {
   INTER_THIN: 'Inter-Thin',
   INTER_SEMIBOLD: 'Inter-SemiBold',
@@ -20,4 +22,6 @@ export const Fonts: {
   INTER_BOLD: 'Inter-Bold',
   POPPINS_BOLD: 'Poppins-Bold',
   POPPINS_REGULAR: 'Poppins-Regular',
+  ORBITRON_BOLD: 'Orbitron-Bold',
+  ORBITRON_EXTRABOLD: 'Orbitron-ExtraBold',
 };

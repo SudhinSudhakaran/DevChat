@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { StyleSheet, Text, View, StyleProp, ViewStyle } from 'react-native';
+import { StyleSheet, View, StyleProp, ViewStyle } from 'react-native';
 import {
   responsiveScreenHeight,
   responsiveScreenWidth,
@@ -14,7 +14,7 @@ interface LogoProps {
 
 const Logo: FC<LogoProps> = ({ containerStyle, animationStyle }) => {
   return (
-    <View style={styles.glowWrapper}>
+    <View style={[styles.glowWrapper, containerStyle]}>
       <View style={styles.logoWrapper}>
         <LottieView
           source={Animations.LOGO_ANIMATION}
@@ -22,8 +22,8 @@ const Logo: FC<LogoProps> = ({ containerStyle, animationStyle }) => {
           loop
           style={[
             {
-              width: responsiveScreenWidth(70),
-              height: responsiveScreenWidth(70),
+              width: responsiveScreenWidth(32),   // ✅ smaller than container (40vw)
+              height: responsiveScreenWidth(32),
             },
             animationStyle,
           ]}
@@ -36,30 +36,28 @@ const Logo: FC<LogoProps> = ({ containerStyle, animationStyle }) => {
 export default Logo;
 
 const styles = StyleSheet.create({
-  logoContainer: {
-    width: responsiveScreenWidth(100),
-    height: responsiveScreenHeight(30),
+  glowWrapper: {
+
     justifyContent: 'center',
     alignItems: 'center',
 
   },
-  appName: {
-    color: Colors.WHITE_COLOR,
-    fontSize: responsiveScreenWidth(10),
-    fontWeight: 'bold',
-    alignSelf: 'center',
-  },
   logoWrapper: {
-    padding: 4,
-    borderRadius: 100,
+    justifyContent: 'center',        // ✅ centers animation inside circle
+    alignItems: 'center',            // ✅ centers animation inside circle
+    overflow: 'hidden',              // ✅ clips anything outside the circle
+    borderRadius: responsiveScreenWidth(20), // ✅ half of width/height = perfect circle
+    borderWidth: 2,
+    borderColor: '#22C55E',
 
-    shadowColor: "#22C55E",
-    shadowOpacity: 0.6,
-    shadowRadius: 10,
-    elevation: 2,
     width: responsiveScreenWidth(40),
     height: responsiveScreenWidth(40),
-    borderWidth: 2,
-    borderColor: "#22C55E",
+
+    // Glow / shadow
+    shadowColor: '#22C55E',
+    shadowOpacity: 0.6,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 0 },
+    elevation: 6,
   },
 });

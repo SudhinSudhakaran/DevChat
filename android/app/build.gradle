@@ -47,22 +47,22 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
-    compileOptions {
-                sourceCompatibility JavaVersion.VERSION_17
-                targetCompatibility JavaVersion.VERSION_17
-            }
-                kotlin {
-    jvmToolchain(17)
-}
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-     packagingOptions {
-         pickFirst 'lib/arm64-v8a/libNitroModules.so'
-         pickFirst 'lib/armeabi-v7a/libNitroModules.so'
-         pickFirst 'lib/x86/libNitroModules.so'
-         pickFirst 'lib/x86_64/libNitroModules.so'
-     }
+//     compileOptions {
+//                 sourceCompatibility JavaVersion.VERSION_17
+//                 targetCompatibility JavaVersion.VERSION_17
+//             }
+//                 kotlin {
+//     jvmToolchain(17)
+// }
+//     kotlinOptions {
+//         jvmTarget = "17"
+//     }
+//      packagingOptions {
+//          pickFirst 'lib/arm64-v8a/libNitroModules.so'
+//          pickFirst 'lib/armeabi-v7a/libNitroModules.so'
+//          pickFirst 'lib/x86/libNitroModules.so'
+//          pickFirst 'lib/x86_64/libNitroModules.so'
+//      }
 }
 
 dependencies {
